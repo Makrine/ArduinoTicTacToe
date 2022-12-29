@@ -1,24 +1,10 @@
 #ifndef TTT
 #define TTT
 
-#include <iostream>
 #include "TTT.h"
 
-#include <ctime>
 
-using namespace std;
-
-ostream& operator<<(ostream& os,
-                    const vector<INDEX>& vector)
-{
-    for (auto element : vector) {
-        os << "{" << element.row << ", " << element.column << "}";
-    }
-    return os;
-}
-
-
-TicTacToe::TicTacToe(int dimension)
+TicTacToe::TicTacToe(int dimension, int randomSeedPin)
 {
     _dimension = dimension;
 
@@ -33,31 +19,32 @@ TicTacToe::TicTacToe(int dimension)
     // initialize available indexes. Its size is dimension*dimesnsion 
     // and has 2 elements each row: {board row index, board column index}
     _availableIndexesSize = dimension*dimension;
-    _availableIndexes = new int*[_availableIndexesSize];
+    _availableIndexes = new INDEX[_availableIndexesSize];
     int i  = 0, j = 0;
     for(int k = 0; k < _availableIndexesSize; k++)
     {
-        INDEX index(i, j);
-        _availableIndexes2.push_back(index);
-        _availableIndexes[k] = new int[2]{i, j++};
+        INDEX index(i, j++);
+        //_availableIndexes2.push_back(index);
+        _availableIndexes[k] = index;
         if(j == 3) {i++; j = 0;}
     }
-    
+
+    randomSeed(analogRead(randomSeedPin));
 }
 
-INDEX TicTacToe::GetPlayerInput()
-{
-    // get input
-    int row, column;
-    cout << "Enter index (separate with SPACE): ";
+// INDEX TicTacToe::GetPlayerInput()
+// {
+//     // get input
+//     int row, column;
+//     cout << "Enter index (separate with SPACE): ";
 
-    cin >> row >> column;
-    INDEX index(row, column);
+//     cin >> row >> column;
+//     INDEX index(row, column);
 
-    return index;
-}
+//     return index;
+// }
 
-bool TicTacToe::PlayerMove(INDEX index, Player type)
+bool TicTacToe::HumanMove(INDEX index, Player type)
 {
     
     // if the index is available, update the board and return true
@@ -76,21 +63,27 @@ void TicTacToe::BotMove(Player type)
 {
     int randIndex = RandomNumber();
 
-    Updateboard(_availableIndexes2[randIndex], type);
+    botMove = _availableIndexes[randIndex];
+    Updateboard(_availableIndexes[randIndex], type);
+    
 
 }
 
 int TicTacToe::RandomNumber()
 {
-    std::srand(std::time(nullptr)); // use current time as seed for random generator
-    int random_variable = std::rand()/((RAND_MAX + 1u)/_availableIndexesSize);
+  // The human should slightly rotate the potentiometer every time they start a new game
+  // so that the bot doesn't play the same way
+
+    int random_variable = random(_availableIndexesSize);
     
     return random_variable;
 }
 bool TicTacToe::IsAvailable(INDEX index)
 {
     // check if index is outside of bounds
-    if(index.row >= _dimension || index.column >= _dimension) return false;
+    if(index.row >= _dimension || index.column >= _dimension
+      || index.row < 0 || index.column < 0
+    ) return false;
 
     // if the board at that index is Empty, it is available
     if(board[index.row][index.column] == E) return true;
@@ -115,12 +108,15 @@ void TicTacToe::PrintBoard()
     {
         for(int j = 0; j < _dimension; j++)
         {
-            cout << board[i][j];
+            Serial.print(board[i][j]);
         }
-        cout << endl;
+        Serial.println();
     }
 }
-
+bool TicTacToe::IsGameOverBool()
+{
+  return _isGameOver;
+}
 Player TicTacToe::IsGameOver()
 {
     Player p;
@@ -136,91 +132,151 @@ Player TicTacToe::IsGameOver()
     // EEE
     // OOE
     // here the sum of the first row will be 3 (dimension = 3) because in Player X = 1. if it was O who won then it'd be 6.
-    for(int i = 0; i < _dimension; i++)
-    {    
-        int rowSum = 0;
+    // for(int i = 0; i < _dimension; i++)
+    // {    
+    //     int rowSum = 0;
         
-        for(int j = 0; j < _dimension; j++)
-        {
-            p = board[i][j];
-            // check if the cell is empty so we don't go through all row if just one cell is empty already
-            if(p != E) rowSum += p;
-            else 
-            {
-                rowSum = 0;
-                break;
-            }
-        }
+    //     for(int j = 0; j < _dimension; j++)
+    //     {
+    //         p = board[i][j];
+    //         // check if the cell is empty so we don't go through all row if just one cell is empty already
+    //         if(p != E) rowSum += p;
+    //         else 
+    //         {
+    //             rowSum = 0;
+    //             break;
+    //         }
+    //     }
 
-        if(rowSum == _dimension || rowSum == _dimension * 2)
-        {
-            return p;
-        }
+    //     if(rowSum == _dimension || rowSum == _dimension * 2)
+    //     {
+    //         _isGameOver = true;
+    //         Serial.println("Horizontal WIN");
+    //         return p;
+    //     }
         
-    }
+    // }
 
-    // Vertical win
+    // // Vertical win
 
-    for(int i = 0; i < _dimension; i++)
-    {
-        int colSum = 0;
+    // for(int i = 0; i < _dimension; i++)
+    // {
+    //     int colSum = 0;
 
-        for(int j = 0; j < _dimension; j++)
-        {
-            p = board[j][i];
-            // check if the cell is empty so we don't go through all row if just one cell is empty already
-            if(p != E) colSum += p;
-            else
-            {
-                colSum = 0;
-                break;
-            }
-        }
-        if(colSum == _dimension || colSum == _dimension * 2)
-        {
-            return p;
-        }
+    //     for(int j = 0; j < _dimension; j++)
+    //     {
+    //         p = board[j][i];
+    //         // check if the cell is empty so we don't go through all row if just one cell is empty already
+    //         if(p != E) colSum += p;
+    //         else
+    //         {
+    //             colSum = 0;
+    //             break;
+    //         }
+    //     }
+    //     if(colSum == _dimension || colSum == _dimension * 2)
+    //     {
+    //         _isGameOver = true;
+    //         Serial.println("Vertical WIN");
+    //         return p;
+    //     }
         
-    }
+    // }
 
-    // identity matrix win
+    // // identity matrix win
 
-    for(int i = 0; i < _dimension; i++)
-    {
-        int identitySum = 0;
+    // int identitySum = 0;
+    // for(int i = 0; i < _dimension; i++)
+    // {
 
-        p = board[i][i];
-        if(p != E) identitySum += p;
-        else
-        {
-            identitySum = 0;
-            break;
-        }
+    //     p = board[i][i];
+    //     if(p != E) identitySum += p;
+    //     else
+    //     {
+    //         identitySum = 0;
+    //         break;
+    //     }
 
-        if(identitySum == _dimension || identitySum == _dimension * 2)
-        {
-            return p;
-        }
-    }
+    //     if(identitySum == _dimension || identitySum == _dimension * 2)
+    //     {
+    //         _isGameOver = true;
+    //         Serial.println("Identity WIN");
+    //         return p;
+    //     }
+    // }
 
     // reverse identity matrix win
+    // int reverseIdentitySum = 0;
+    // for(int i = 0, j = _dimension - 1; i < _dimension && j >= 0; i++, j--)
+    // {
+    //     p = board[i][j];
+    //     if(p != E) {
+    //       Serial.println(p);
+    //       reverseIdentitySum += p;
+    //       }
+    //     else 
+    //     {
+    //         Serial.println("ZEROED");          
+    //         reverseIdentitySum = 0;
+    //         break;
+    //     }
 
-    for(int i = 0, j = _dimension - 1; i < _dimension && j >= 0; i++, j--)
-    {
-        int reverseIdentitySum = 0;
+    //     if(reverseIdentitySum == _dimension || reverseIdentitySum == _dimension * 2)
+    //     { 
+    //         _isGameOver = true;
+    //         Serial.println("Reverse Identity WIN");
+    //         return p;
+    //     }
+    // }
 
-        p = board[i][j];
-        if(p != E) reverseIdentitySum += p;
-        else 
-        {
-            reverseIdentitySum = 0;
-            break;
-        }
 
-        if(reverseIdentitySum == _dimension || reverseIdentitySum == _dimension * 2)
-        { 
-            return p;
-        }
+    // horizonals
+    p = board[0][0];
+    if(p != E)
+    { 
+      if(p == board[0][1] && p == board[0][2]) { _isGameOver = true; return p;}
+    }
+    p = board[1][0];
+    if(p != E)
+    { 
+      if(p == board[1][1] && p == board[1][2]) { _isGameOver = true; return p;}
+    }
+    p = board[2][0];
+    if(p != E)
+    { 
+      if(p == board[2][1] && p == board[2][2]) { _isGameOver = true; return p;}
+    }
+
+    // verticals
+    p = board[0][0];
+    if(p != E)
+    { 
+      if(p == board[1][0] && p == board[2][0]) { _isGameOver = true; return p;}
+    }
+    p = board[0][1];
+    if(p != E)
+    { 
+      if(p == board[1][1] && p == board[2][1]) { _isGameOver = true; return p;}
+    }
+    p = board[0][2];
+    if(p != E)
+    { 
+      if(p == board[1][2] && p == board[2][2]) { _isGameOver = true; return p;}
+    }
+
+
+    // identity
+    p = board[0][0];
+    if(p != E)
+    { 
+      if(p == board[1][1] && p == board[2][2]) { _isGameOver = true; return p;}
+    }
+
+    // reverse identity
+    p = board[0][2];
+    if(p != E)
+    { 
+      if(p == board[1][1] && p == board[2][0]) { _isGameOver = true; return p;}
     }
 
     return E;
@@ -228,15 +284,24 @@ Player TicTacToe::IsGameOver()
 
 void TicTacToe::RemoveAvailableIndex(INDEX index)
 {
-    int len = _availableIndexes2.size();
-    for(int i = 0; i < len; i++)
+    int foundIndex = -1;
+    for(int i = 0; i < _availableIndexesSize; i++)
     {
-        if(_availableIndexes2[i].row == index.row && _availableIndexes2[i].column == index.column)
+        if(_availableIndexes[i].row == index.row && _availableIndexes[i].column == index.column)
         {
-            _availableIndexes2.erase(_availableIndexes2.begin() + i);
+            foundIndex = i;
+            break;
         }
     }
-    _availableIndexesSize--;
+
+    if(foundIndex != -1)
+    {
+        _availableIndexesSize--;
+
+        //shift all the element from index+1 by one position to the left
+        for(int i = foundIndex; i < _availableIndexesSize; i++)
+            _availableIndexes[i] = _availableIndexes[i+1];
+    }
 }
 
 bool TicTacToe::IsXTurn()
@@ -245,58 +310,58 @@ bool TicTacToe::IsXTurn()
 }
 
 
-int main()
-{
-    TicTacToe ttt(3);
+// int main()
+// {
+//     TicTacToe ttt(3);
 
 
-    while(true)
-    {
-        INDEX index = ttt.GetPlayerInput();
+//     while(true)
+//     {
+//         INDEX index = ttt.GetPlayerInput();
 
-        while(!ttt.PlayerMove(index, X))
-        {
-            index = ttt.GetPlayerInput();
-        }
-        Player p = ttt.IsGameOver();
-        if(p != E) 
-        {
-            ttt.PrintBoard();
-            if(p == D)
-            {
-                cout << "DRAW!";
-            }
-            else if (p == X)
-            {
-                cout << "X" << " WON!";
-            }
+//         while(!ttt.PlayerMove(index, X))
+//         {
+//             index = ttt.GetPlayerInput();
+//         }
+//         Player p = ttt.IsGameOver();
+//         if(p != E) 
+//         {
+//             ttt.PrintBoard();
+//             if(p == D)
+//             {
+//                 cout << "DRAW!";
+//             }
+//             else if (p == X)
+//             {
+//                 cout << "X" << " WON!";
+//             }
             
-            else cout << "O" << " WON!";
-            break;
-        }
+//             else cout << "O" << " WON!";
+//             break;
+//         }
 
-        ttt.BotMove(O);
-        p = ttt.IsGameOver();
-        ttt.PrintBoard();
+//         ttt.BotMove(O);
+//         p = ttt.IsGameOver();
+//         ttt.PrintBoard();
 
-        if(p != E) 
-        {
-            if(p == D)
-            {
-                cout << "DRAW!";
-            }
-            else if (p == X)
-            {
-                cout << "X" << " WON!";
-            }
+//         if(p != E) 
+//         {
+//             if(p == D)
+//             {
+//                 cout << "DRAW!";
+//             }
+//             else if (p == X)
+//             {
+//                 cout << "X" << " WON!";
+//             }
             
-            else cout << "O" << " WON!";
-            break;
-        }
-    }
+//             else cout << "O" << " WON!";
+//             break;
+//         }
+//     }
     
 
-    return 0;
-}
+//     return 0;
+// }
 
 #endif

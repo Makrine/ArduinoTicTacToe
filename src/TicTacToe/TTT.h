@@ -1,7 +1,7 @@
 #ifndef TTT_H
 #define TTT_H
 
-#include <vector>
+#include "Arduino.h"
 
 /// @brief E: Empty, X: X, O: O, D: Draw
 enum Player
@@ -13,6 +13,11 @@ struct INDEX
 {
     int row, column;
 
+    INDEX()
+    {
+        row = -1;
+        column = -1;
+    }
     INDEX(int r, int c)
     {
         row = r;
@@ -23,11 +28,12 @@ struct INDEX
 class TicTacToe
 {
     private:
+        
+        bool _isGameOver = false;
         int _dimension;
         Player** board;
         int _availableIndexesSize;
-        std::vector<INDEX> _availableIndexes2;
-        int** _availableIndexes;
+        INDEX* _availableIndexes;
         bool _xTurn;
 
         /// @brief Removes the index from the available indexes list. 
@@ -39,12 +45,14 @@ class TicTacToe
         int RandomNumber();
         
     public:     
-        TicTacToe(int dimension);
+        INDEX botMove;
+        INDEX humanMove;
+        TicTacToe(int dimension, int randomSeedPin);
         /// @brief Makes the player move on the specified index
         /// @param index index on the board where the player wants to move
         /// @param type X, O. Is the player X or O
         /// @return 
-        bool PlayerMove(INDEX index, Player type);
+        bool HumanMove(INDEX index, Player type);
         /// @brief Makes the bot move
         /// @param type X, O. Is the bot X or O
         /// @return 
@@ -64,6 +72,9 @@ class TicTacToe
         /// @brief Returns whether it is X's turn or not
         /// @return 
         bool IsXTurn();
+        /// @brief Checks if the game is over.
+        /// @return 
+        bool IsGameOverBool();
         
 
         // Methods specific for C++
