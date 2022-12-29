@@ -121,9 +121,9 @@ void TicTacToe::PrintBoard()
 Player TicTacToe::IsGameOver()
 {
     Player p;
-    int rowSum = 0;
-    int colSum = 0;
-    int identitySum = 0;
+
+    // Draw
+    if(_availableIndexesSize <= 0) return D;
 
     // Horizontal win
 
@@ -134,17 +134,25 @@ Player TicTacToe::IsGameOver()
     // OOE
     // here the sum of the first row will be 3 (dimension = 3) because in Player X = 1. if it was O who won then it'd be 6.
     for(int i = 0; i < _dimension; i++)
-    {
-        if(rowSum == _dimension || rowSum == _dimension * 2) { cout << "Horizontal Win\n"; return p;}
-
+    {    
+        int rowSum = 0;
+        
         for(int j = 0; j < _dimension; j++)
         {
             p = board[i][j];
             // check if the cell is empty so we don't go through all row if just one cell is empty already
             if(p != E) rowSum += p;
-            else break;
+            else 
+            {
+                rowSum = 0;
+                break;
+            }
         }
 
+        if(rowSum == _dimension || rowSum == _dimension * 2)
+        {
+            return p;
+        }
         
     }
 
@@ -152,14 +160,22 @@ Player TicTacToe::IsGameOver()
 
     for(int i = 0; i < _dimension; i++)
     {
-        if(colSum == _dimension || colSum == _dimension * 2) { cout << "Verical Win\n"; return p;}
+        int colSum = 0;
 
         for(int j = 0; j < _dimension; j++)
         {
             p = board[j][i];
             // check if the cell is empty so we don't go through all row if just one cell is empty already
             if(p != E) colSum += p;
-            else break;
+            else
+            {
+                colSum = 0;
+                break;
+            }
+        }
+        if(colSum == _dimension || colSum == _dimension * 2)
+        {
+            return p;
         }
         
     }
@@ -168,23 +184,39 @@ Player TicTacToe::IsGameOver()
 
     for(int i = 0; i < _dimension; i++)
     {
-        if(identitySum == _dimension || identitySum == _dimension * 2) { cout << "Identity Win\n"; return p;}
+        int identitySum = 0;
 
         p = board[i][i];
         if(p != E) identitySum += p;
-        else break;
+        else
+        {
+            identitySum = 0;
+            break;
+        }
+
+        if(identitySum == _dimension || identitySum == _dimension * 2)
+        {
+            return p;
+        }
     }
 
     // reverse identity matrix win
 
-    for(int i = 0; i < _dimension; i++)
+    for(int i = 0, j = _dimension - 1; i < _dimension && j >= 0; i++, j--)
     {
-        if(identitySum == _dimension || identitySum == _dimension * 2) { cout << "Reverse Identity Win\n"; return p;}
-        for(int j = _dimension -1 ; j >= 0; j--)
+        int reverseIdentitySum = 0;
+
+        p = board[i][j];
+        if(p != E) reverseIdentitySum += p;
+        else 
         {
-            p = board[i][j];
-            if(p != E) identitySum += p;
-            else break;
+            reverseIdentitySum = 0;
+            break;
+        }
+
+        if(reverseIdentitySum == _dimension || reverseIdentitySum == _dimension * 2)
+        { 
+            return p;
         }
     }
 
@@ -202,7 +234,6 @@ void TicTacToe::RemoveAvailableIndex(INDEX index)
         }
     }
     _availableIndexesSize--;
-    // cout << "VECTOR\n" << _availableIndexes2 << "END\n";
 }
 
 bool TicTacToe::IsXTurn()
@@ -228,17 +259,35 @@ int main()
         if(p != E) 
         {
             ttt.PrintBoard();
-            cout << p << " WON!";
+            if(p == D)
+            {
+                cout << "DRAW!";
+            }
+            else if (p == X)
+            {
+                cout << "X" << " WON!";
+            }
+            
+            else cout << "O" << " WON!";
             break;
         }
 
         ttt.BotMove(O);
-        
+        p = ttt.IsGameOver();
         ttt.PrintBoard();
 
         if(p != E) 
         {
-            cout << p << " WON!";
+            if(p == D)
+            {
+                cout << "DRAW!";
+            }
+            else if (p == X)
+            {
+                cout << "X" << " WON!";
+            }
+            
+            else cout << "O" << " WON!";
             break;
         }
     }

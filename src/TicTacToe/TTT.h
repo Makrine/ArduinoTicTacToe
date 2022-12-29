@@ -1,8 +1,9 @@
 #include <vector>
 
+/// @brief E: Empty, X: X, O: O, D: Draw
 enum Player
 {
-    E, X, O
+    E, X, O, D
 };
 
 struct INDEX
