@@ -1,3 +1,6 @@
+#ifndef TTT
+#define TTT
+
 #include <iostream>
 #include "TTT.h"
 
@@ -295,3 +298,5 @@ int main()
 
     return 0;
 }
+
+#endif

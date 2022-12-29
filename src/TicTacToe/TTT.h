@@ -1,3 +1,6 @@
+#ifndef TTT_H
+#define TTT_H
+
 #include <vector>
 
 /// @brief E: Empty, X: X, O: O, D: Draw
@@ -67,3 +70,5 @@ class TicTacToe
         INDEX GetPlayerInput();
         void PrintBoard();
 };
+
+#endif
