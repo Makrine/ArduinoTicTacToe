@@ -273,6 +273,7 @@ bool TicTacToe::IsGameOverBool()
 {
   return _isGameOver;
 }
+
 Player TicTacToe::IsGameOver()
 {
     Player p;
@@ -291,6 +292,7 @@ Player TicTacToe::IsGameOver()
     for(int i = 0; i < _dimension; i++)
     {
       Player cell = board[i][0];
+      if(cell == E) continue;
       for (int j = 1; j < _dimension; j++)
       {
         if(board[i][j] == cell) continue;
@@ -308,6 +310,7 @@ Player TicTacToe::IsGameOver()
     for(int i = 0; i < _dimension; i++)
     {
       Player cell = board[0][i];
+      if(cell == E) continue;
       for (int j = 1; j < _dimension; j++)
       {
         if(board[j][i] == cell) continue;
@@ -323,6 +326,7 @@ Player TicTacToe::IsGameOver()
 
     // identity win
     Player cell = board[0][0];
+    if(cell == E) return E;
     for (int i = 1; i < _dimension; i++)
     {
       if(board[i][i] == cell) continue;
@@ -336,7 +340,9 @@ Player TicTacToe::IsGameOver()
     
     // reverse identity win
     cell = board[0][2];
-    for (int i = 1, j = _dimension - 1; i < _dimension && j >= 0; i++, j--)
+    if(cell == E) return E;
+
+    for (int i = _dimension - 2, j = 1; i >= 0 && j < _dimension; i--, j++)
     {
       if(board[j][i] == cell) continue;
       else
@@ -349,56 +355,6 @@ Player TicTacToe::IsGameOver()
 
     return E;
 
-    // // horizonals
-    // p = board[0][0];
-    // if(p != E)
-    // { 
-    //   if(p == board[0][1] && p == board[0][2]) { _isGameOver = true; return p;}
-    // }
-    // p = board[1][0];
-    // if(p != E)
-    // { 
-    //   if(p == board[1][1] && p == board[1][2]) { _isGameOver = true; return p;}
-    // }
-    // p = board[2][0];
-    // if(p != E)
-    // { 
-    //   if(p == board[2][1] && p == board[2][2]) { _isGameOver = true; return p;}
-    // }
-
-    // // verticals
-    // p = board[0][0];
-    // if(p != E)
-    // { 
-    //   if(p == board[1][0] && p == board[2][0]) { _isGameOver = true; return p;}
-    // }
-    // p = board[0][1];
-    // if(p != E)
-    // { 
-    //   if(p == board[1][1] && p == board[2][1]) { _isGameOver = true; return p;}
-    // }
-    // p = board[0][2];
-    // if(p != E)
-    // { 
-    //   if(p == board[1][2] && p == board[2][2]) { _isGameOver = true; return p;}
-    // }
-
-
-    // // identity
-    // p = board[0][0];
-    // if(p != E)
-    // { 
-    //   if(p == board[1][1] && p == board[2][2]) { _isGameOver = true; return p;}
-    // }
-
-    // // reverse identity
-    // p = board[0][2];
-    // if(p != E)
-    // { 
-    //   if(p == board[1][1] && p == board[2][0]) { _isGameOver = true; return p;}
-    // }
-
-    // return E;
 }
 
 void TicTacToe::RemoveAvailableIndex(INDEX index)

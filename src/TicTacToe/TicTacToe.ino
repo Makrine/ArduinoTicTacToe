@@ -53,7 +53,7 @@ void setup()
 void loop()
 {
 
-setDifficulty(Medium);
+setDifficulty(Easy);
 
 ledController.CheckStatesMatrix();
   
