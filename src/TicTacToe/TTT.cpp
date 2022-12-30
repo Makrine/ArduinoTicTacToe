@@ -463,92 +463,84 @@ enum Difficulty
   Easy, Medium, Hard, PvP
 };
 
-void level(Difficulty diff, bool xStarts)
+void setDifficulty(TicTacToe &ttt, Difficulty diff, bool &humanStarts)
 {
-  TicTacToe ttt(3);
+  // if the game is over, flash leds and just don't continue
+  //while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
 
-  while(true)
+  if(humanStarts)
+  {
+    INDEX input = ttt.GetPlayerInput();
+
+    while(!ttt.HumanMove(input, X))
+      input = ttt.GetPlayerInput();
+
+    // check if the game is over
+    Player p = ttt.IsGameOver();
+    
+    if(p != E)
     {
+    	printf("%d WON or DRAW", p);
+    	exit(0);
+    }
+  }
 
-      if(xStarts)
+  humanStarts = true;
+
+    // if the second player is the bot, make the corresponding move 
+    // depending on the level
+    if(diff != PvP)
+    {
+      if(diff == Easy)
       {
-         ///////////
-          INDEX index = ttt.GetPlayerInput();
-
-          while(!ttt.HumanMove(index, X))
-          {
-              index = ttt.GetPlayerInput();
-          }
-        /////////
+        ttt.BotMoveEasy(O);
       }
-       
-       xStarts = true;
+      else if(diff == Medium)
+      {
+        ttt.BotMoveMedium(O);
+      }
+      else if(diff == Hard)
+      {
+        ttt.BotMoveHard(O);
+      }
+
+
+      Player p = ttt.IsGameOver();
+      if(p != E)
+      {
+        printf("%d WON or DRAW", p);
+        exit(0);
+      }
+      ttt.PrintBoard();
+      
+    }
+    // if the second player is a humam
+    else
+    {
+        INDEX input = ttt.GetPlayerInput();
+
+        while(!ttt.HumanMove(input, X))
+          input = ttt.GetPlayerInput();
+  
 
         Player p = ttt.IsGameOver();
-        if(p != E) 
+        if(p != E)
         {
-            ttt.PrintBoard();
-            if(p == D)
-            {
-                cout << "DRAW!";
-            }
-            else if (p == X)
-            {
-                cout << "X" << " WON!";
-            }
-            
-            else cout << "O" << " WON!";
-            break;
+          printf("%d WON or DRAW", p);
+          exit(0);
         }
-
-        if(diff != PvP)
-        {
-          if(diff == Easy)
-            ttt.BotMoveEasy(O);
-          else if(diff == Medium)
-            ttt.BotMoveMedium(O);
-          else if(diff == Hard)
-            ttt.BotMoveHard(O);
-        }
-        else
-        {
-          ttt.PrintBoard();
-          ///////////
-          INDEX index = ttt.GetPlayerInput();
-
-          while(!ttt.HumanMove(index, O))
-          {
-              index = ttt.GetPlayerInput();
-          }
-          /////////
-        }
-
-        
-        p = ttt.IsGameOver();
-        ttt.PrintBoard();
-
-        if(p != E) 
-        {
-            if(p == D)
-            {
-                cout << "DRAW!";
-            }
-            else if (p == X)
-            {
-                cout << "X" << " WON!";
-            }
-            
-            else cout << "O" << " WON!";
-            break;
-        }
+  
     }
+    
+    
 }
 
 
 int main()
 {
-    
-  level(Easy, false);
+    TicTacToe ttt(3);
+    bool humanStarts = false;
+    while(true) setDifficulty(ttt, Easy, humanStarts);
 
   printf("\nGAME OVER\n");
   return 0;
