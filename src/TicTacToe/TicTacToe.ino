@@ -49,18 +49,19 @@ void setup()
 
   pinMode(turnLed, OUTPUT);
 }
+bool humanStarts = false;
 
 void loop()
 {
 
-setDifficulty(Easy, true);
+  setMode(Easy, humanStarts);
 
-ledController.CheckStatesMatrix();
+  ledController.CheckStatesMatrix();
   
 }
 
 
-void setDifficulty(Difficulty diff, bool humanStarts)
+void setMode(Difficulty diff, bool &humanStarts)
 {
 
   // if the game is over, flash leds and just don't continue
@@ -77,7 +78,8 @@ void setDifficulty(Difficulty diff, bool humanStarts)
     // check if the game is over
     Player p = ttt.IsGameOver();    
   }
-  else humanStarts = true;
+ 
+  humanStarts = true;
   
 
   // if the game is not over, make the second player move
@@ -117,18 +119,9 @@ void setDifficulty(Difficulty diff, bool humanStarts)
   
     }
     Player p = ttt.IsGameOver();
-    
-    
-    // if(ttt.IsGameOverBool())
-    // {
-    //   //ttt.PrintBoard();
-    // }
+  
   }
 
-  // else {
-  //   //ttt.PrintBoard();
-  //   //ledController.LedState(ledController.GREEN, humanLed, 255);
-  //   }
 }
 
 
