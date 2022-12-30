@@ -3,8 +3,8 @@
 
 #include "TTT.h"
 
-//#include <iostream>
-//#include <cstdlib>
+#include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -36,17 +36,17 @@ TicTacToe::TicTacToe(int dimension)
    
 }
 
-// INDEX TicTacToe::GetPlayerInput()
-// {
-//     // get input
-//     int row, column;
-//     cout << "Enter index (separate with SPACE): ";
+INDEX TicTacToe::GetPlayerInput()
+{
+    // get input
+    int row, column;
+    cout << "Enter index (separate with SPACE): ";
 
-//     cin >> row >> column;
-//     INDEX index(row, column);
+    cin >> row >> column;
+    INDEX index(row, column);
 
-//     return index;
-// }
+    return index;
+}
 
 bool TicTacToe::HumanMove(INDEX index, Player p)
 {
@@ -226,9 +226,9 @@ void TicTacToe::BotMoveMedium(Player type)
 int TicTacToe::RandomNumber()
 {
 
-    int random_variable = random(_availableIndexesSize);
-    //srand((unsigned) time(NULL));
-    //int random_variable = (rand() % _availableIndexesSize);
+    //int random_variable = random(_availableIndexesSize);
+    srand((unsigned) time(NULL));
+    int random_variable = (rand() % _availableIndexesSize);
 
     return random_variable;
 }
@@ -263,10 +263,10 @@ void TicTacToe::PrintBoard()
         for(int j = 0; j < _dimension; j++)
         {
             //Serial.print(board[i][j]);
-            //cout << board[i][j];
+            cout << board[i][j];
         }
         //Serial.println();
-        //cout << endl;
+        cout << endl;
     }
 }
 bool TicTacToe::IsGameOverBool()
@@ -291,11 +291,17 @@ Player TicTacToe::IsGameOver()
     for(int i = 0; i < _dimension; i++)
     {
       Player cell = board[i][0];
+      if(cell == E) continue;
       for (int j = 1; j < _dimension; j++)
       {
-        if(board[i][j] == cell) continue;
+        if(board[i][j] == cell)
+        {
+          printf("?win for %d at {%d, %d}\n", cell, i, j);
+          continue;
+        } 
         else
         {
+          printf("row %d NO win because of {%d, %d}\n", i, i, j);
           cell = E;
           break;
         }
@@ -308,11 +314,17 @@ Player TicTacToe::IsGameOver()
     for(int i = 0; i < _dimension; i++)
     {
       Player cell = board[0][i];
+      if(cell == E) continue;
       for (int j = 1; j < _dimension; j++)
       {
-        if(board[j][i] == cell) continue;
+        if(board[j][i] == cell)
+        {
+          printf("?win for %d at {%d, %d}\n", cell, j, i);
+          continue;
+        } 
         else
         {
+          printf("column %d NO win because of {%d, %d}\n", i, j, i);
           cell = E;
           break;
         }
@@ -323,11 +335,17 @@ Player TicTacToe::IsGameOver()
 
     // identity win
     Player cell = board[0][0];
+    if(cell == E) return E;
     for (int i = 1; i < _dimension; i++)
     {
-      if(board[i][i] == cell) continue;
+      if(board[i][i] == cell) 
+      {
+        printf("?win for %d at {%d, %d}\n", cell, i, i);
+        continue;
+      }
       else
       {
+        printf("identity NO win because of {%d, %d}\n", i, i);
         cell = E;
         break;
       }
@@ -336,11 +354,18 @@ Player TicTacToe::IsGameOver()
     
     // reverse identity win
     cell = board[0][2];
-    for (int i = 1, j = _dimension - 1; i < _dimension && j >= 0; i++, j--)
+    if(cell == E) return E;
+
+    for (int i = _dimension - 2, j = 1; i >= 0 && j < _dimension; i--, j++)
     {
-      if(board[j][i] == cell) continue;
+      if(board[j][i] == cell)
+      {
+        printf("?win for %d at {%d, %d}\n", cell, j, i);
+        continue;
+      }
       else
       {
+        printf("Reverse identity NO win because of {%d, %d}\n", j, i);
         cell = E;
         break;
       }
@@ -434,57 +459,57 @@ void TicTacToe::BotMoveHard(Player p)
 }
 
 
-// int main()
-// {
-//     TicTacToe ttt(3);
+int main()
+{
+    TicTacToe ttt(3);
 
 
-//     while(true)
-//     {
-//         INDEX index = ttt.GetPlayerInput();
+    while(true)
+    {
+        INDEX index = ttt.GetPlayerInput();
 
-//         while(!ttt.HumanMove(index, X))
-//         {
-//             index = ttt.GetPlayerInput();
-//         }
-//         Player p = ttt.IsGameOver();
-//         if(p != E) 
-//         {
-//             ttt.PrintBoard();
-//             if(p == D)
-//             {
-//                 cout << "DRAW!";
-//             }
-//             else if (p == X)
-//             {
-//                 cout << "X" << " WON!";
-//             }
+        while(!ttt.HumanMove(index, X))
+        {
+            index = ttt.GetPlayerInput();
+        }
+        Player p = ttt.IsGameOver();
+        if(p != E) 
+        {
+            ttt.PrintBoard();
+            if(p == D)
+            {
+                cout << "DRAW!";
+            }
+            else if (p == X)
+            {
+                cout << "X" << " WON!";
+            }
             
-//             else cout << "O" << " WON!";
-//             break;
-//         }
+            else cout << "O" << " WON!";
+            break;
+        }
 
-//         ttt.BotMoveMedium(O);
-//         p = ttt.IsGameOver();
-//         ttt.PrintBoard();
+        ttt.BotMoveEasy(O);
+        p = ttt.IsGameOver();
+        ttt.PrintBoard();
 
-//         if(p != E) 
-//         {
-//             if(p == D)
-//             {
-//                 cout << "DRAW!";
-//             }
-//             else if (p == X)
-//             {
-//                 cout << "X" << " WON!";
-//             }
+        if(p != E) 
+        {
+            if(p == D)
+            {
+                cout << "DRAW!";
+            }
+            else if (p == X)
+            {
+                cout << "X" << " WON!";
+            }
             
-//             else cout << "O" << " WON!";
-//             break;
-//         }
-//     }
+            else cout << "O" << " WON!";
+            break;
+        }
+    }
     
 
-//     return 0;
-// }
+    return 0;
+}
 #endif

@@ -1,7 +1,7 @@
 #ifndef TTT_H
 #define TTT_H
 
-#include "Arduino.h"
+//#include "Arduino.h"
 
 /// @brief E: Empty, X: X, O: O, D: Draw
 enum Player
