@@ -47,7 +47,7 @@ class TicTacToe
     public:     
         INDEX botMove;
         INDEX humanMove;
-        TicTacToe(int dimension, int randomSeedPin);
+        TicTacToe(int dimension);
         /// @brief Makes the player move on the specified index
         /// @param index index on the board where the player wants to move
         /// @param type X, O. Is the player X or O
@@ -56,7 +56,7 @@ class TicTacToe
         /// @brief Makes the bot move
         /// @param type X, O. Is the bot X or O
         /// @return 
-        void BotMove(Player type);
+        void BotMoveEasy(Player type);
         /// @brief Checks whether the given index is available
         /// @param index 
         /// @return 
@@ -75,7 +75,9 @@ class TicTacToe
         /// @brief Checks if the game is over.
         /// @return 
         bool IsGameOverBool();
-        
+        INDEX IsHumanWinning(Player p);
+        void BotMoveMedium(Player p);
+        void BotMoveHard(Player p);
 
         // Methods specific for C++
         INDEX GetPlayerInput();

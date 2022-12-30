@@ -1,8 +1,6 @@
 #include "Keypad.h"
 #include "LedMatrixController.h"
 #include "TTT.h"
-#include <string.h>
-#include "conversion.h"
 
 const byte ROWS = 3; 
 const byte COLS = 3;
@@ -12,7 +10,7 @@ char keys[ROWS][COLS] = {
     {'7','8','9'}
 };
 
-byte rowPins[ROWS] = {A0, A1, A2};//{2, 1, 0}; 
+byte rowPins[ROWS] = {2, 1, 0}; //{A0, A1, A2};
 byte colPins[COLS] = {5, 4, 3};
 
 
@@ -31,19 +29,41 @@ LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
-TicTacToe ttt(3, A5);
+TicTacToe ttt(3);
+
+enum Difficulty
+{
+  Easy, Medium, Hard
+};
 
 void setup()
 {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   pinMode(potPin, INPUT);
+  int randSeed= analogRead(potPin);
+  randomSeed(randSeed);
+
+  // Serial.print("Random Seed: ");
+  // Serial.print(randSeed);
+  // Serial.println();
+
   pinMode(turnLed, OUTPUT);
 }
-bool legit = false;
+
 void loop()
 {
 
-while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
+setDifficulty(Medium);
+
+ledController.CheckStatesMatrix();
+  
+}
+
+
+void setDifficulty(Difficulty diff)
+{
+
+  while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
 
   char key = keypad.getKey();
 
@@ -55,54 +75,58 @@ while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
     if(key != NO_KEY)
     {
       if(key == '1')
-    {
-      ttt.humanMove.row = 0;
-      ttt.humanMove.column = 0;
-    }
-    else if(key == '2')
-    {
-      ttt.humanMove.row = 0;
-      ttt.humanMove.column = 1;
-    }
+      {
+        ttt.humanMove.row = 0;
+        ttt.humanMove.column = 0;
+      }
+      else if(key == '2')
+      {
+        ttt.humanMove.row = 0;
+        ttt.humanMove.column = 1;
+      }
 
-    else if(key == '3')
-    {
-      ttt.humanMove.row = 0;
-      ttt.humanMove.column = 2;
-    }
+      else if(key == '3')
+      {
+        ttt.humanMove.row = 0;
+        ttt.humanMove.column = 2;
+      }
 
-    else if(key == '4')
-    {
-      ttt.humanMove.row = 1;
-      ttt.humanMove.column = 0;
-    }
-    else if(key == '5')
-    {
-      ttt.humanMove.row = 1;
-      ttt.humanMove.column = 1;
-    }
+      else if(key == '4')
+      {
+        ttt.humanMove.row = 1;
+        ttt.humanMove.column = 0;
+      }
+      else if(key == '5')
+      {
+        ttt.humanMove.row = 1;
+        ttt.humanMove.column = 1;
+      }
 
-    else if(key == '6')
-    {
-      ttt.humanMove.row = 1;
-      ttt.humanMove.column = 2;
-    }
-    else if(key == '7')
-    {
-      ttt.humanMove.row = 2;
-      ttt.humanMove.column = 0;
-    }
-    else if(key == '8')
-    {
-      ttt.humanMove.row = 2;
-      ttt.humanMove.column = 1;
-    }
+      else if(key == '6')
+      {
+        ttt.humanMove.row = 1;
+        ttt.humanMove.column = 2;
+      }
+      else if(key == '7')
+      {
+        ttt.humanMove.row = 2;
+        ttt.humanMove.column = 0;
+      }
+      else if(key == '8')
+      {
+        ttt.humanMove.row = 2;
+        ttt.humanMove.column = 1;
+      }
 
-    else if(key == '9')
-    {
-      ttt.humanMove.row = 2;
-      ttt.humanMove.column = 2;
-    }
+      else if(key == '9')
+      {
+        ttt.humanMove.row = 2;
+        ttt.humanMove.column = 2;
+      }
+
+      if(!ttt.HumanMove(ttt.humanMove, X))
+        key = NO_KEY;
+
     }
   }
     
@@ -110,111 +134,35 @@ while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
 
     
     INDEX_LED humanLed(ttt.humanMove.row, ttt.humanMove.column);
-
-    
-    ttt.HumanMove(ttt.humanMove, X);
-    ledController.LedState(ledController.GREEN, humanLed, 255);
+    ledController.LedState(ledController.BLUE, humanLed, 255);
     
     Player p = ttt.IsGameOver();
 
     if(!ttt.IsGameOverBool())
     {
-      ttt.BotMove(O);
-
+      if(diff == Easy)
+      {
+        ttt.BotMoveEasy(O);
+      }
+      else if(diff == Medium)
+      {
+        ttt.BotMoveMedium(O);
+      }
+      else if(diff == Hard)
+      {
+        ttt.BotMoveHard(O);
+      }
     INDEX_LED botLed(ttt.botMove.row, ttt.botMove.column);
     ledController.LedState(ledController.RED, botLed, 255);
     p = ttt.IsGameOver();
     if(ttt.IsGameOverBool())
     {
-      ttt.PrintBoard();
+      //ttt.PrintBoard();
     }
     }
 
   else {
-    ttt.PrintBoard();
-    ledController.LedState(ledController.GREEN, humanLed, 255);
+    //ttt.PrintBoard();
+    //ledController.LedState(ledController.GREEN, humanLed, 255);
     }
-
-
-
-    // byte** s = ledController.GetStatesMatrix();
-
-    // for(int i = 0; i < 3; i++)
-    // {
-    //   for(int j = 0; j < 3; j++)
-    //   {
-    //     Serial.print(s[i][j]);
-    //   }
-    //   Serial.println();
-    // }
-
-  // char key = keypad.getKey();
-
-  // if(key == '1')
-  // {
-  //   if(!ledController.IsOn(0, 0))
-  //     ledController.LedState(ledController.RED, 0, 0, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 0, 0, 0);
-  // }
-  // else if(key == '2')
-  // {
-  //   if(!ledController.IsOn(0, 1))
-  //     ledController.LedState(ledController.RED, 0, 1, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 0, 1, 0);
-  // }
-  // else if(key == '3')
-  // {
-  //   if(!ledController.IsOn(0, 2))
-  //     ledController.LedState(ledController.RED, 0, 2, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 0, 2, 0);
-  // }
-
-  // if(key == '4')
-  // {
-  //   if(!ledController.IsOn(1, 0 ))
-  //     ledController.LedState(ledController.RED, 1, 0, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 1, 0, 0);
-  // }
-  // else if(key == '5')
-  // {
-  //   if(!ledController.IsOn(1, 1))
-  //     ledController.LedState(ledController.BLUE, 1, 1, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 1, 1, 0);
-  // }
-  // else if(key == '6')
-  // {
-  //   if(!ledController.IsOn(1, 2))
-  //     ledController.LedState(ledController.BLUE, 1, 2, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 1, 2, 0);
-  // }
-
-  // if(key == '7')
-  // {
-  //   if(!ledController.IsOn(2, 0))
-  //     ledController.LedState(ledController.BLUE, 2, 0, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 2, 0, 0);
-  // }
-  // else if(key == '8')
-  // {
-  //   if(!ledController.IsOn(2, 1))
-  //     ledController.LedState(ledController.BLUE, 2, 1, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 2, 1, 0);
-  // }
-  // else if(key == '9')
-  // {
-  //   if(!ledController.IsOn(2, 2))
-  //     ledController.LedState(ledController.BLUE, 2, 2, 255);
-  //   else
-  //     ledController.LedState(ledController.RED, 2, 2, 0);
-  // }
-ledController.CheckStatesMatrix();
-  
 }
