@@ -3,8 +3,12 @@
 
 #include "TTT.h"
 
+//#include <iostream>
+//#include <cstdlib>
 
-TicTacToe::TicTacToe(int dimension, int randomSeedPin)
+using namespace std;
+
+TicTacToe::TicTacToe(int dimension)
 {
     _dimension = dimension;
 
@@ -28,8 +32,8 @@ TicTacToe::TicTacToe(int dimension, int randomSeedPin)
         _availableIndexes[k] = index;
         if(j == 3) {i++; j = 0;}
     }
-
-    randomSeed(analogRead(randomSeedPin));
+    
+   
 }
 
 // INDEX TicTacToe::GetPlayerInput()
@@ -44,13 +48,13 @@ TicTacToe::TicTacToe(int dimension, int randomSeedPin)
 //     return index;
 // }
 
-bool TicTacToe::HumanMove(INDEX index, Player type)
+bool TicTacToe::HumanMove(INDEX index, Player p)
 {
     
     // if the index is available, update the board and return true
     if(IsAvailable(index))
     {
-        Updateboard(index, type);
+        Updateboard(index, p);
         return true;
     }      
     
@@ -59,7 +63,7 @@ bool TicTacToe::HumanMove(INDEX index, Player type)
 
 }
 
-void TicTacToe::BotMove(Player type)
+void TicTacToe::BotMoveEasy(Player type)
 {
     int randIndex = RandomNumber();
 
@@ -69,13 +73,163 @@ void TicTacToe::BotMove(Player type)
 
 }
 
+INDEX TicTacToe::IsHumanWinning(Player p)
+{
+
+  int playerPoint = 0;
+  int empty = 0;
+  INDEX emptyIndex;
+
+
+  // horizontal
+  for(int i = 0; i < _dimension; i++)
+  {
+    for(int j = 0; j < _dimension; j++)
+    {
+      if(board[i][j] == p)
+      {
+        playerPoint++;
+        //printf("Player at {%d, %d}\n", i, j);
+      }
+      else if(board[i][j] == E && emptyIndex.row == -1)
+      {
+        emptyIndex.row = i;
+        emptyIndex.column = j;
+        //printf("H%d: FIRST Empty at {%d, %d}\n", i, i, j);
+      }
+      else
+      {
+        //printf("H%d: BOT or Second Empty at {%d, %d} BREAKING\n", i, i, j);
+        playerPoint = 0;
+        empty = 0;
+        emptyIndex.row = -1;
+        emptyIndex.column = -1;
+        break;
+      }
+      
+    }
+    if(playerPoint == _dimension - 1) { botMove = emptyIndex; return emptyIndex;}
+  }
+  
+  // vertical
+  for(int i = 0; i < _dimension; i++)
+  {
+    for(int j = 0; j < _dimension; j++)
+    {
+      if(board[j][i] == p)
+      {
+        playerPoint++;
+        //printf("Player at {%d, %d}\n", i, j);
+      }
+      else if(board[j][i] == E && emptyIndex.row == -1)
+      {
+        emptyIndex.row = j;
+        emptyIndex.column = i;
+        //printf("V%d: FIRST Empty at {%d, %d}\n", i, j, i);
+      }
+      else
+      {
+        //printf("V%d: BOT or Second Empty at {%d, %d} BREAKING\n", i, j, i);
+        playerPoint = 0;
+        empty = 0;
+        emptyIndex.row = -1;
+        emptyIndex.column = -1;
+        break;
+      }
+
+      
+    }
+     if(playerPoint == _dimension - 1) { botMove = emptyIndex; return emptyIndex;}
+  }
+
+  // diagonal
+  for(int i = 0; i < _dimension; i++)
+  {
+    if(board[i][i] == p)
+    {
+      playerPoint++;
+      //printf("Player at {%d, %d}\n", i, i);
+    }
+    else if(board[i][i] == E && emptyIndex.row == -1)
+    {
+      emptyIndex.row = i;
+      emptyIndex.column = i;
+      //printf("D1: FIRST Empty at {%d, %d}\n", i, i);
+    }
+    else
+    {
+      //printf("D1: BOT or Second Empty at {%d, %d} BREAKING\n", i, i);
+        playerPoint = 0;
+        empty = 0;
+        emptyIndex.row = -1;
+        emptyIndex.column = -1;
+      break;
+    }
+  }
+
+  if(playerPoint == _dimension - 1) { botMove = emptyIndex; return emptyIndex;}
+
+  // diagonal 2
+  for(int i = 0, j = _dimension - 1; i < _dimension && j>=0; i++, j--)
+  {
+    if(board[j][i] == p)
+    {
+      playerPoint++;
+      //printf("Player at {%d, %d}\n", i, j);
+    }
+    else if(board[j][i] == E && emptyIndex.row == -1)
+    {
+      emptyIndex.row = j;
+      emptyIndex.column = i;
+      //printf("D2: FIRST Empty at {%d, %d}\n", i, j);
+    }
+    else
+    {
+      //printf("D2: BOT or Second Empty at {%d, %d} BREAKING\n", j, i);
+        playerPoint = 0;
+        empty = 0;
+        emptyIndex.row = -1;
+        emptyIndex.column = -1;
+      break;
+    }
+  }
+
+  if(playerPoint == _dimension - 1) { botMove = emptyIndex; return emptyIndex;}
+
+  return emptyIndex;
+
+}
+
+void TicTacToe::BotMoveMedium(Player type)
+{
+  Player player;
+  if(type == X) player = O;
+  else player = X;
+
+    INDEX index = IsHumanWinning(player);
+
+    if(index.row != -1)
+    {
+      Updateboard(index, type);
+      //cout << "YES\n";
+    }
+    else
+    {
+      int randIndex = RandomNumber();
+
+      botMove = _availableIndexes[randIndex];
+      Updateboard(_availableIndexes[randIndex], type);
+    }
+
+}
+
 int TicTacToe::RandomNumber()
 {
-  // The human should slightly rotate the potentiometer every time they start a new game
-  // so that the bot doesn't play the same way
 
     int random_variable = random(_availableIndexesSize);
-    
+    //srand((unsigned) time(NULL));
+    //int random_variable = (rand() % _availableIndexesSize);
+
     return random_variable;
 }
 bool TicTacToe::IsAvailable(INDEX index)
@@ -108,9 +262,11 @@ void TicTacToe::PrintBoard()
     {
         for(int j = 0; j < _dimension; j++)
         {
-            Serial.print(board[i][j]);
+            //Serial.print(board[i][j]);
+            //cout << board[i][j];
         }
-        Serial.println();
+        //Serial.println();
+        //cout << endl;
     }
 }
 bool TicTacToe::IsGameOverBool()
@@ -122,7 +278,7 @@ Player TicTacToe::IsGameOver()
     Player p;
 
     // Draw
-    if(_availableIndexesSize <= 0) return D;
+    if(_availableIndexesSize <= 0) { _isGameOver = true; return D;}
 
     // horizonals
     p = board[0][0];
@@ -203,5 +359,63 @@ bool TicTacToe::IsXTurn()
     return _xTurn;
 }
 
+void TicTacToe::BotMoveHard(Player p)
+{
 
+}
+
+
+// int main()
+// {
+//     TicTacToe ttt(3);
+
+
+//     while(true)
+//     {
+//         INDEX index = ttt.GetPlayerInput();
+
+//         while(!ttt.HumanMove(index, X))
+//         {
+//             index = ttt.GetPlayerInput();
+//         }
+//         Player p = ttt.IsGameOver();
+//         if(p != E) 
+//         {
+//             ttt.PrintBoard();
+//             if(p == D)
+//             {
+//                 cout << "DRAW!";
+//             }
+//             else if (p == X)
+//             {
+//                 cout << "X" << " WON!";
+//             }
+            
+//             else cout << "O" << " WON!";
+//             break;
+//         }
+
+//         ttt.BotMoveMedium(O);
+//         p = ttt.IsGameOver();
+//         ttt.PrintBoard();
+
+//         if(p != E) 
+//         {
+//             if(p == D)
+//             {
+//                 cout << "DRAW!";
+//             }
+//             else if (p == X)
+//             {
+//                 cout << "X" << " WON!";
+//             }
+            
+//             else cout << "O" << " WON!";
+//             break;
+//         }
+//     }
+    
+
+//     return 0;
+// }
 #endif

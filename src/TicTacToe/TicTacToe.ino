@@ -1,8 +1,6 @@
 #include "Keypad.h"
 #include "LedMatrixController.h"
 #include "TTT.h"
-#include <string.h>
-#include "conversion.h"
 
 const byte ROWS = 3; 
 const byte COLS = 3;
@@ -12,7 +10,7 @@ char keys[ROWS][COLS] = {
     {'7','8','9'}
 };
 
-byte rowPins[ROWS] = {A0, A1, A2};//{2, 1, 0}; 
+byte rowPins[ROWS] = {2, 1, 0}; //{A0, A1, A2};
 byte colPins[COLS] = {5, 4, 3};
 
 
@@ -31,23 +29,45 @@ LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
-TicTacToe ttt(3, A5);
+TicTacToe ttt(3);
+
+enum Difficulty
+{
+  Easy, Medium, Hard
+};
 
 void setup()
 {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   pinMode(potPin, INPUT);
+  int randSeed= analogRead(potPin);
+  randomSeed(randSeed);
+
+  // Serial.print("Random Seed: ");
+  // Serial.print(randSeed);
+  // Serial.println();
+
   pinMode(turnLed, OUTPUT);
 }
-bool legit = false;
+
 void loop()
 {
 
-while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
+setDifficulty(Medium);
+
+ledController.CheckStatesMatrix();
+  
+}
+
+
+void setDifficulty(Difficulty diff)
+{
+
+  while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
 
   char key = keypad.getKey();
 
-  while(key == NO_KEY)// && !legit)
+  while(key == NO_KEY)
   {
     ledController.CheckStatesMatrix();
     key = keypad.getKey();
@@ -104,7 +124,7 @@ while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
         ttt.humanMove.column = 2;
       }
 
-      if(!ttt.HumanMove(ttt.humanMove, X)) //legit = true;
+      if(!ttt.HumanMove(ttt.humanMove, X))
         key = NO_KEY;
 
     }
@@ -114,29 +134,35 @@ while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
 
     
     INDEX_LED humanLed(ttt.humanMove.row, ttt.humanMove.column);
-    ledController.LedState(ledController.GREEN, humanLed, 255);
-    // legit = false;
+    ledController.LedState(ledController.BLUE, humanLed, 255);
     
     Player p = ttt.IsGameOver();
 
     if(!ttt.IsGameOverBool())
     {
-      ttt.BotMove(O);
-
+      if(diff == Easy)
+      {
+        ttt.BotMoveEasy(O);
+      }
+      else if(diff == Medium)
+      {
+        ttt.BotMoveMedium(O);
+      }
+      else if(diff == Hard)
+      {
+        ttt.BotMoveHard(O);
+      }
     INDEX_LED botLed(ttt.botMove.row, ttt.botMove.column);
     ledController.LedState(ledController.RED, botLed, 255);
     p = ttt.IsGameOver();
     if(ttt.IsGameOverBool())
     {
-      ttt.PrintBoard();
+      //ttt.PrintBoard();
     }
     }
 
   else {
-    ttt.PrintBoard();
-    ledController.LedState(ledController.GREEN, humanLed, 255);
+    //ttt.PrintBoard();
+    //ledController.LedState(ledController.GREEN, humanLed, 255);
     }
-
-ledController.CheckStatesMatrix();
-  
 }
