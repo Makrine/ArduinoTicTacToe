@@ -10,11 +10,9 @@ char keys[ROWS][COLS] = {
     {'7','8','9'}
 };
 
-byte rowPins[ROWS] = {2, 1, 0}; //{A0, A1, A2};
+byte rowPins[ROWS] = {2, 1, 0};
 byte colPins[COLS] = {5, 4, 3};
 
-
-short waitTime = 500;
 byte refreshRate = 1;
 
 byte myRows[3] = {13, 12, 8};
@@ -31,22 +29,16 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 TicTacToe ttt(3);
 
-enum Difficulty
+enum MODE
 {
   Easy, Medium, Hard, PvP
 };
 
 void setup()
 {
-  //Serial.begin(9600);
   pinMode(potPin, INPUT);
   int randSeed= analogRead(potPin);
   randomSeed(randSeed);
-
-  // Serial.print("Random Seed: ");
-  // Serial.print(randSeed);
-  // Serial.println();
-
   pinMode(turnLed, OUTPUT);
 }
 bool humanStarts = false;
@@ -61,7 +53,7 @@ void loop()
 }
 
 
-void setMode(Difficulty diff, bool &humanStarts)
+void setMode(MODE diff, bool &humanStarts)
 {
 
   // if the game is over, flash leds and just don't continue
