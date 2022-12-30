@@ -296,12 +296,12 @@ Player TicTacToe::IsGameOver()
       {
         if(board[i][j] == cell)
         {
-          printf("?win for %d at {%d, %d}\n", cell, i, j);
+          //printf("?win for %d at {%d, %d}\n", cell, i, j);
           continue;
         } 
         else
         {
-          printf("row %d NO win because of {%d, %d}\n", i, i, j);
+          //printf("row %d NO win because of {%d, %d}\n", i, i, j);
           cell = E;
           break;
         }
@@ -319,12 +319,12 @@ Player TicTacToe::IsGameOver()
       {
         if(board[j][i] == cell)
         {
-          printf("?win for %d at {%d, %d}\n", cell, j, i);
+          //printf("?win for %d at {%d, %d}\n", cell, j, i);
           continue;
         } 
         else
         {
-          printf("column %d NO win because of {%d, %d}\n", i, j, i);
+          //printf("column %d NO win because of {%d, %d}\n", i, j, i);
           cell = E;
           break;
         }
@@ -340,12 +340,12 @@ Player TicTacToe::IsGameOver()
     {
       if(board[i][i] == cell) 
       {
-        printf("?win for %d at {%d, %d}\n", cell, i, i);
+        //printf("?win for %d at {%d, %d}\n", cell, i, i);
         continue;
       }
       else
       {
-        printf("identity NO win because of {%d, %d}\n", i, i);
+        //printf("identity NO win because of {%d, %d}\n", i, i);
         cell = E;
         break;
       }
@@ -360,12 +360,12 @@ Player TicTacToe::IsGameOver()
     {
       if(board[j][i] == cell)
       {
-        printf("?win for %d at {%d, %d}\n", cell, j, i);
+        //printf("?win for %d at {%d, %d}\n", cell, j, i);
         continue;
       }
       else
       {
-        printf("Reverse identity NO win because of {%d, %d}\n", j, i);
+        //printf("Reverse identity NO win because of {%d, %d}\n", j, i);
         cell = E;
         break;
       }
@@ -458,20 +458,32 @@ void TicTacToe::BotMoveHard(Player p)
 
 }
 
-
-int main()
+enum Difficulty
 {
-    TicTacToe ttt(3);
+  Easy, Medium, Hard, PvP
+};
 
+void level(Difficulty diff, bool xStarts)
+{
+  TicTacToe ttt(3);
 
-    while(true)
+  while(true)
     {
-        INDEX index = ttt.GetPlayerInput();
 
-        while(!ttt.HumanMove(index, X))
-        {
-            index = ttt.GetPlayerInput();
-        }
+      if(xStarts)
+      {
+         ///////////
+          INDEX index = ttt.GetPlayerInput();
+
+          while(!ttt.HumanMove(index, X))
+          {
+              index = ttt.GetPlayerInput();
+          }
+        /////////
+      }
+       
+       xStarts = true;
+
         Player p = ttt.IsGameOver();
         if(p != E) 
         {
@@ -489,7 +501,29 @@ int main()
             break;
         }
 
-        ttt.BotMoveEasy(O);
+        if(diff != PvP)
+        {
+          if(diff == Easy)
+            ttt.BotMoveEasy(O);
+          else if(diff == Medium)
+            ttt.BotMoveMedium(O);
+          else if(diff == Hard)
+            ttt.BotMoveHard(O);
+        }
+        else
+        {
+          ttt.PrintBoard();
+          ///////////
+          INDEX index = ttt.GetPlayerInput();
+
+          while(!ttt.HumanMove(index, O))
+          {
+              index = ttt.GetPlayerInput();
+          }
+          /////////
+        }
+
+        
         p = ttt.IsGameOver();
         ttt.PrintBoard();
 
@@ -508,8 +542,15 @@ int main()
             break;
         }
     }
-    
+}
 
-    return 0;
+
+int main()
+{
+    
+  level(Easy, false);
+
+  printf("\nGAME OVER\n");
+  return 0;
 }
 #endif
