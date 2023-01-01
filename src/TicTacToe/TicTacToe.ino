@@ -10,11 +10,9 @@ char keys[ROWS][COLS] = {
     {'7','8','9'}
 };
 
-byte rowPins[ROWS] = {2, 1, 0}; //{A0, A1, A2};
+byte rowPins[ROWS] = {2, 1, 0};
 byte colPins[COLS] = {5, 4, 3};
 
-
-short waitTime = 500;
 byte refreshRate = 1;
 
 byte myRows[3] = {13, 12, 8};
@@ -22,123 +20,68 @@ byte colsR[3] = {11, 10, 9};
 byte colsB[3] = {6, A4, A3};
 byte colsG[3] = {A0, A1, A2};
 
-byte potPin = A5;
+byte randomNumPin = A5;
 byte turnLed = 7;
 
 LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
+//byte dim = 3;
+
 TicTacToe ttt(3);
 
-enum Difficulty
+enum MODE
 {
-  Easy, Medium, Hard
+  Easy, Medium, Hard, PvP
 };
 
 void setup()
 {
-  //Serial.begin(9600);
-  pinMode(potPin, INPUT);
-  int randSeed= analogRead(potPin);
+  pinMode(randomNumPin, INPUT);
+  int randSeed= analogRead(randomNumPin);
   randomSeed(randSeed);
-
-  // Serial.print("Random Seed: ");
-  // Serial.print(randSeed);
-  // Serial.println();
-
   pinMode(turnLed, OUTPUT);
 }
+bool humanStarts = true;
 
 void loop()
 {
 
-setDifficulty(Medium);
+  setMode(Medium, humanStarts);
 
-ledController.CheckStatesMatrix();
+  ledController.CheckStatesMatrix();
   
 }
 
 
-void setDifficulty(Difficulty diff)
+void setMode(MODE diff, bool &humanStarts)
 {
 
+  // if the game is over, flash leds and just don't continue
   while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
 
-  char key = keypad.getKey();
-
-  while(key == NO_KEY)
+  if(humanStarts)
   {
-    ledController.CheckStatesMatrix();
-    key = keypad.getKey();
-
-    if(key != NO_KEY)
-    {
-      if(key == '1')
-      {
-        ttt.humanMove.row = 0;
-        ttt.humanMove.column = 0;
-      }
-      else if(key == '2')
-      {
-        ttt.humanMove.row = 0;
-        ttt.humanMove.column = 1;
-      }
-
-      else if(key == '3')
-      {
-        ttt.humanMove.row = 0;
-        ttt.humanMove.column = 2;
-      }
-
-      else if(key == '4')
-      {
-        ttt.humanMove.row = 1;
-        ttt.humanMove.column = 0;
-      }
-      else if(key == '5')
-      {
-        ttt.humanMove.row = 1;
-        ttt.humanMove.column = 1;
-      }
-
-      else if(key == '6')
-      {
-        ttt.humanMove.row = 1;
-        ttt.humanMove.column = 2;
-      }
-      else if(key == '7')
-      {
-        ttt.humanMove.row = 2;
-        ttt.humanMove.column = 0;
-      }
-      else if(key == '8')
-      {
-        ttt.humanMove.row = 2;
-        ttt.humanMove.column = 1;
-      }
-
-      else if(key == '9')
-      {
-        ttt.humanMove.row = 2;
-        ttt.humanMove.column = 2;
-      }
-
-      if(!ttt.HumanMove(ttt.humanMove, X))
-        key = NO_KEY;
-
-    }
-  }
-    
-
-
-    
+    getHumanInput(X);
+  
+    // once the legit input is given, turn on the corresponding led
     INDEX_LED humanLed(ttt.humanMove.row, ttt.humanMove.column);
     ledController.LedState(ledController.BLUE, humanLed, 255);
     
-    Player p = ttt.IsGameOver();
+    // check if the game is over
+    Player p = ttt.IsGameOver();    
+  }
+ 
+  humanStarts = true;
+  
 
-    if(!ttt.IsGameOverBool())
+  // if the game is not over, make the second player move
+  if(!ttt.IsGameOverBool())
+  {
+    // if the second player is the bot, make the corresponding move 
+    // depending on the level
+    if(diff != PvP)
     {
       if(diff == Easy)
       {
@@ -152,17 +95,106 @@ void setDifficulty(Difficulty diff)
       {
         ttt.BotMoveHard(O);
       }
-    INDEX_LED botLed(ttt.botMove.row, ttt.botMove.column);
-    ledController.LedState(ledController.RED, botLed, 255);
-    p = ttt.IsGameOver();
-    if(ttt.IsGameOverBool())
-    {
-      //ttt.PrintBoard();
-    }
-    }
 
-  else {
-    //ttt.PrintBoard();
-    //ledController.LedState(ledController.GREEN, humanLed, 255);
+      // turn on the bot's led
+      INDEX_LED botLed(ttt.botMove.row, ttt.botMove.column);
+      ledController.LedState(ledController.RED, botLed, 255);
+
+      
     }
+    // if the second player is a humam
+    else
+    {
+        getHumanInput(O);
+  
+        // once the legit input is given, turn on the corresponding led
+        INDEX_LED humanLed(ttt.humanMove.row, ttt.humanMove.column);
+        ledController.LedState(ledController.RED, humanLed, 255);
+  
+    }
+    Player p = ttt.IsGameOver();
+  
+  }
+
+}
+
+
+void getHumanInput(Player p)
+{
+  // get the player input
+  char key = keypad.getKey();
+
+  // wait for the player input
+  while(key == NO_KEY)
+  {
+    // keeping the recently on leds turned on
+    ledController.CheckStatesMatrix();
+
+    key = keypad.getKey();
+
+    // if the human pressed the key, check if that spot is avaialble on the board
+    if(key != NO_KEY)
+    {
+      // get board indexes from the key
+      translateHumanInput(key);
+
+      // if the spot isn't available, assing NO_KEY so that it will wait for another input
+      if(!ttt.HumanMove(ttt.humanMove, p))
+        key = NO_KEY;
+
+    }
+  }
+}
+
+void translateHumanInput(char key)
+{
+  if(key == '1')
+  {
+    ttt.humanMove.row = 0;
+    ttt.humanMove.column = 0;
+  }
+  else if(key == '2')
+  {
+    ttt.humanMove.row = 0;
+    ttt.humanMove.column = 1;
+  }
+
+  else if(key == '3')
+  {
+    ttt.humanMove.row = 0;
+    ttt.humanMove.column = 2;
+  }
+
+  else if(key == '4')
+  {
+    ttt.humanMove.row = 1;
+    ttt.humanMove.column = 0;
+  }
+  else if(key == '5')
+  {
+    ttt.humanMove.row = 1;
+    ttt.humanMove.column = 1;
+  }
+
+  else if(key == '6')
+  {
+    ttt.humanMove.row = 1;
+    ttt.humanMove.column = 2;
+  }
+  else if(key == '7')
+  {
+    ttt.humanMove.row = 2;
+    ttt.humanMove.column = 0;
+  }
+  else if(key == '8')
+  {
+    ttt.humanMove.row = 2;
+    ttt.humanMove.column = 1;
+  }
+
+  else if(key == '9')
+  {
+    ttt.humanMove.row = 2;
+    ttt.humanMove.column = 2;
+  }
 }

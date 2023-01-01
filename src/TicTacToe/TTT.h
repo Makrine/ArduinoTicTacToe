@@ -6,7 +6,10 @@
 /// @brief E: Empty, X: X, O: O, D: Draw
 enum Player
 {
-    E, X, O, D
+    E = 0, 
+    X = 1, 
+    O = -1,
+    D = 2
 };
 
 struct INDEX
@@ -30,9 +33,9 @@ class TicTacToe
     private:
         
         bool _isGameOver = false;
-        int _dimension;
+        byte _dimension;
         Player** board;
-        int _availableIndexesSize;
+        byte _availableIndexesSize;
         INDEX* _availableIndexes;
         bool _xTurn;
 
@@ -42,12 +45,12 @@ class TicTacToe
         void RemoveAvailableIndex(INDEX index);
         /// @brief Returns random number in a range of available indexes count
         /// @return 
-        int RandomNumber();
+        byte RandomNumber();
         
-    public:     
+    public:
         INDEX botMove;
         INDEX humanMove;
-        TicTacToe(int dimension);
+        TicTacToe(byte dimension);
         /// @brief Makes the player move on the specified index
         /// @param index index on the board where the player wants to move
         /// @param type X, O. Is the player X or O
@@ -78,10 +81,6 @@ class TicTacToe
         INDEX IsHumanWinning(Player p);
         void BotMoveMedium(Player p);
         void BotMoveHard(Player p);
-
-        // Methods specific for C++
-        INDEX GetPlayerInput();
-        void PrintBoard();
 };
 
 #endif
