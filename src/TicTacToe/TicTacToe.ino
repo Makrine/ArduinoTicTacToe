@@ -41,12 +41,12 @@ void setup()
   randomSeed(randSeed);
   pinMode(turnLed, OUTPUT);
 }
-bool humanStarts = false;
+bool humanStarts = true;
 
 void loop()
 {
 
-  setMode(Medium, humanStarts);
+  setMode(Easy, humanStarts);
 
   ledController.CheckStatesMatrix();
   

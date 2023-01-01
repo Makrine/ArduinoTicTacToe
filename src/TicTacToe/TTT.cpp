@@ -237,76 +237,35 @@ Player TicTacToe::IsGameOver()
     if(_availableIndexesSize <= 0) { _isGameOver = true; return D;}
 
 
-    // horizonal win
-
-    // get the first element of the row in "cell" and iterate on other elements of that row
-    // if the current element is the same as the cell continue, it means this row might have the win
-    // else break and set sell to E
-    // if after the row iteration is done, check the cell, if it is not E, it means there is a win and return it
-    // same with vertical but we check columns
+    // horizontal and vertical win
+    // we count the rows and cols cell values, if they == +- dimension it means it's a win
     for(int i = 0; i < _dimension; i++)
     {
-      Player cell = board[i][0];
-      if(cell == E) continue;
-      for (int j = 1; j < _dimension; j++)
+      int sumRow = 0;
+      int sumCol = 0;
+      
+      for (int j = 0; j < _dimension; j++)
       {
-        if(board[i][j] == cell) continue;
-        else
-        {
-          cell = E;
-          break;
-        }
+        sumRow += board[i][j];
+        sumCol += board[j][i];
       }
 
-      if(cell != E) { _isGameOver = true; return cell;}
+      if(sumRow == _dimension || sumCol == _dimension ) { _isGameOver = true; return X;}
+      else if(sumRow == -_dimension || sumCol == -_dimension) { _isGameOver = true; return O;}
     }
 
-    // vertical win
-    for(int i = 0; i < _dimension; i++)
+
+    int sumIdentity = 0;
+    int sumReverseIdentity = 0;
+    for(int i = 0, j = _dimension - 1; i < _dimension && j >=0; i++, j--)
     {
-      Player cell = board[0][i];
-      if(cell == E) continue;
-      for (int j = 1; j < _dimension; j++)
-      {
-        if(board[j][i] == cell) continue;
-        else
-        {
-          cell = E;
-          break;
-        }
-      }
+      sumIdentity += board[i][i];
+      sumReverseIdentity += board[i][j];
 
-      if(cell != E) { _isGameOver = true; return cell;}
+      if(sumIdentity == _dimension || sumReverseIdentity == _dimension)  {_isGameOver = true; return X;}
+      else if(sumIdentity == -_dimension || sumReverseIdentity == -_dimension)  {_isGameOver = true; return O;}
     }
 
-    // identity win
-    Player cell = board[0][0];
-    if(cell == E) return E;
-    for (int i = 1; i < _dimension; i++)
-    {
-      if(board[i][i] == cell) continue;
-      else
-      {
-        cell = E;
-        break;
-      }
-    }
-    if(cell != E) { _isGameOver = true; return cell;}
-    
-    // reverse identity win
-    cell = board[0][2];
-    if(cell == E) return E;
-
-    for (int i = _dimension - 2, j = 1; i >= 0 && j < _dimension; i--, j++)
-    {
-      if(board[j][i] == cell) continue;
-      else
-      {
-        cell = E;
-        break;
-      }
-    }
-    if(cell != E) { _isGameOver = true; return cell;}
 
     return E;
 
