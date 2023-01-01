@@ -46,7 +46,7 @@ bool humanStarts = true;
 void loop()
 {
 
-  setMode(Easy, humanStarts);
+  setMode(Medium, humanStarts);
 
   ledController.CheckStatesMatrix();
   

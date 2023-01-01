@@ -10,7 +10,7 @@ TicTacToe::TicTacToe(int dimension)
 
     // initialize the game board of the size of dimension
     board = new Player*[dimension];
-    for(int i = 0; i < dimension; i++)
+    for(byte i = 0; i < dimension; i++)
     {
         board[i] = new Player[dimension]{E};
         
@@ -20,8 +20,8 @@ TicTacToe::TicTacToe(int dimension)
     // and has 2 elements each row: {board row index, board column index}
     _availableIndexesSize = dimension*dimension;
     _availableIndexes = new INDEX[_availableIndexesSize];
-    int i  = 0, j = 0;
-    for(int k = 0; k < _availableIndexesSize; k++)
+    byte i  = 0, j = 0;
+    for(byte k = 0; k < _availableIndexesSize; k++)
     {
         INDEX index(i, j++);
         _availableIndexes[k] = index;
@@ -59,15 +59,15 @@ void TicTacToe::BotMoveEasy(Player type)
 INDEX TicTacToe::IsHumanWinning(Player p)
 {
 
-  int playerPoint = 0;
-  int empty = 0;
+  byte playerPoint = 0;
+  byte empty = 0;
   INDEX emptyIndex;
 
 
   // horizontal
-  for(int i = 0; i < _dimension; i++)
+  for(byte i = 0; i < _dimension; i++)
   {
-    for(int j = 0; j < _dimension; j++)
+    for(byte j = 0; j < _dimension; j++)
     {
       if(board[i][j] == p)
       {
@@ -92,9 +92,9 @@ INDEX TicTacToe::IsHumanWinning(Player p)
   }
   
   // vertical
-  for(int i = 0; i < _dimension; i++)
+  for(byte i = 0; i < _dimension; i++)
   {
-    for(int j = 0; j < _dimension; j++)
+    for(byte j = 0; j < _dimension; j++)
     {
       if(board[j][i] == p)
       {
@@ -120,7 +120,7 @@ INDEX TicTacToe::IsHumanWinning(Player p)
   }
 
   // diagonal
-  for(int i = 0; i < _dimension; i++)
+  for(byte i = 0; i < _dimension; i++)
   {
     if(board[i][i] == p)
     {
@@ -144,7 +144,7 @@ INDEX TicTacToe::IsHumanWinning(Player p)
   if(playerPoint == _dimension - 1) { botMove = emptyIndex; return emptyIndex;}
 
   // diagonal 2
-  for(int i = 0, j = _dimension - 1; i < _dimension && j>=0; i++, j--)
+  for(byte i = 0, j = _dimension - 1; i < _dimension && j>=0; i++, j--)
   {
     if(board[j][i] == p)
     {
@@ -239,12 +239,12 @@ Player TicTacToe::IsGameOver()
 
     // horizontal and vertical win
     // we count the rows and cols cell values, if they == +- dimension it means it's a win
-    for(int i = 0; i < _dimension; i++)
+    for(byte i = 0; i < _dimension; i++)
     {
-      int sumRow = 0;
-      int sumCol = 0;
+      byte sumRow = 0;
+      byte sumCol = 0;
       
-      for (int j = 0; j < _dimension; j++)
+      for (byte j = 0; j < _dimension; j++)
       {
         sumRow += board[i][j];
         sumCol += board[j][i];
@@ -255,9 +255,9 @@ Player TicTacToe::IsGameOver()
     }
 
 
-    int sumIdentity = 0;
-    int sumReverseIdentity = 0;
-    for(int i = 0, j = _dimension - 1; i < _dimension && j >=0; i++, j--)
+    byte sumIdentity = 0;
+    byte sumReverseIdentity = 0;
+    for(byte i = 0, j = _dimension - 1; i < _dimension && j >=0; i++, j--)
     {
       sumIdentity += board[i][i];
       sumReverseIdentity += board[i][j];
@@ -274,7 +274,7 @@ Player TicTacToe::IsGameOver()
 void TicTacToe::RemoveAvailableIndex(INDEX index)
 {
     int foundIndex = -1;
-    for(int i = 0; i < _availableIndexesSize; i++)
+    for(byte i = 0; i < _availableIndexesSize; i++)
     {
         if(_availableIndexes[i].row == index.row && _availableIndexes[i].column == index.column)
         {
@@ -288,7 +288,7 @@ void TicTacToe::RemoveAvailableIndex(INDEX index)
         _availableIndexesSize--;
 
         //shift all the element from index+1 by one position to the left
-        for(int i = foundIndex; i < _availableIndexesSize; i++)
+        for(byte i = foundIndex; i < _availableIndexesSize; i++)
             _availableIndexes[i] = _availableIndexes[i+1];
     }
 }
