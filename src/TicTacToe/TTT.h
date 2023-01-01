@@ -45,7 +45,7 @@ class TicTacToe
         void RemoveAvailableIndex(INDEX index);
         /// @brief Returns random number in a range of available indexes count
         /// @return 
-        int RandomNumber();
+        byte RandomNumber();
         
     public:
         INDEX botMove;

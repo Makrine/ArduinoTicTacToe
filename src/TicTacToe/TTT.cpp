@@ -193,10 +193,10 @@ void TicTacToe::BotMoveMedium(Player type)
 
 }
 
-int TicTacToe::RandomNumber()
+byte TicTacToe::RandomNumber()
 {
 
-    int random_variable = random(_availableIndexesSize);
+    byte random_variable = random(_availableIndexesSize);
 
     return random_variable;
 }
@@ -241,8 +241,8 @@ Player TicTacToe::IsGameOver()
     // we count the rows and cols cell values, if they == +- dimension it means it's a win
     for(byte i = 0; i < _dimension; i++)
     {
-      byte sumRow = 0;
-      byte sumCol = 0;
+      int sumRow = 0;
+      int sumCol = 0;
       
       for (byte j = 0; j < _dimension; j++)
       {
@@ -255,8 +255,8 @@ Player TicTacToe::IsGameOver()
     }
 
 
-    byte sumIdentity = 0;
-    byte sumReverseIdentity = 0;
+    int sumIdentity = 0;
+    int sumReverseIdentity = 0;
     for(byte i = 0, j = _dimension - 1; i < _dimension && j >=0; i++, j--)
     {
       sumIdentity += board[i][i];
