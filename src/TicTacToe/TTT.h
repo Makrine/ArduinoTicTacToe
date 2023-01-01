@@ -72,9 +72,6 @@ class TicTacToe
         /// if no winner, returns E (Empty)
         /// @return 
         Player IsGameOver();
-        /// @brief Returns whether it is X's turn or not
-        /// @return 
-        bool IsXTurn();
         /// @brief Checks if the game is over.
         /// @return 
         bool IsGameOverBool();

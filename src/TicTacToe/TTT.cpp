@@ -293,10 +293,6 @@ void TicTacToe::RemoveAvailableIndex(INDEX index)
     }
 }
 
-bool TicTacToe::IsXTurn()
-{
-    return _xTurn;
-}
 
 void TicTacToe::BotMoveHard(Player p)
 {
