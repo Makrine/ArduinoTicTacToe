@@ -27,6 +27,8 @@ LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
+//byte dim = 3;
+
 TicTacToe ttt(3);
 
 enum MODE

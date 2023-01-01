@@ -4,7 +4,7 @@
 #include "TTT.h"
 
 
-TicTacToe::TicTacToe(int dimension)
+TicTacToe::TicTacToe(byte dimension)
 {
     _dimension = dimension;
 
@@ -273,7 +273,7 @@ Player TicTacToe::IsGameOver()
 
 void TicTacToe::RemoveAvailableIndex(INDEX index)
 {
-    int foundIndex = -1;
+    byte foundIndex = -1;
     for(byte i = 0; i < _availableIndexesSize; i++)
     {
         if(_availableIndexes[i].row == index.row && _availableIndexes[i].column == index.column)
