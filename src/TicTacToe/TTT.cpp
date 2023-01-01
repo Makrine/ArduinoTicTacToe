@@ -28,7 +28,6 @@ TicTacToe::TicTacToe(int dimension)
         if(j == 3) {i++; j = 0;}
     }
     
-   
 }
 
 
@@ -225,19 +224,6 @@ void TicTacToe::Updateboard(INDEX index, Player type)
     RemoveAvailableIndex(index);
 }
 
-void TicTacToe::PrintBoard()
-{
-    for(int i = 0; i < _dimension; i++)
-    {
-        for(int j = 0; j < _dimension; j++)
-        {
-            //Serial.print(board[i][j]);
-            //cout << board[i][j];
-        }
-        //Serial.println();
-        //cout << endl;
-    }
-}
 bool TicTacToe::IsGameOverBool()
 {
   return _isGameOver;
@@ -356,6 +342,8 @@ bool TicTacToe::IsXTurn()
 void TicTacToe::BotMoveHard(Player p)
 {
 
+
 }
+
 
 #endif

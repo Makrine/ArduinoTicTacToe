@@ -20,7 +20,7 @@ byte colsR[3] = {11, 10, 9};
 byte colsB[3] = {6, A4, A3};
 byte colsG[3] = {A0, A1, A2};
 
-byte potPin = A5;
+byte randomNumPin = A5;
 byte turnLed = 7;
 
 LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
@@ -36,8 +36,8 @@ enum MODE
 
 void setup()
 {
-  pinMode(potPin, INPUT);
-  int randSeed= analogRead(potPin);
+  pinMode(randomNumPin, INPUT);
+  int randSeed= analogRead(randomNumPin);
   randomSeed(randSeed);
   pinMode(turnLed, OUTPUT);
 }
@@ -46,7 +46,7 @@ bool humanStarts = false;
 void loop()
 {
 
-  setMode(Easy, humanStarts);
+  setMode(Medium, humanStarts);
 
   ledController.CheckStatesMatrix();
   

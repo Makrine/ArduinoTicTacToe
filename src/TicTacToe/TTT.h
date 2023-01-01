@@ -6,7 +6,10 @@
 /// @brief E: Empty, X: X, O: O, D: Draw
 enum Player
 {
-    E, X, O, D
+    E = 0, 
+    X = 1, 
+    O = -1,
+    D = 2
 };
 
 struct INDEX
@@ -44,7 +47,7 @@ class TicTacToe
         /// @return 
         int RandomNumber();
         
-    public:     
+    public:
         INDEX botMove;
         INDEX humanMove;
         TicTacToe(int dimension);
@@ -78,10 +81,6 @@ class TicTacToe
         INDEX IsHumanWinning(Player p);
         void BotMoveMedium(Player p);
         void BotMoveHard(Player p);
-
-        // Methods specific for C++
-        INDEX GetPlayerInput();
-        void PrintBoard();
 };
 
 #endif
