@@ -33,9 +33,9 @@ class TicTacToe
     private:
         
         bool _isGameOver = false;
-        int _dimension;
+        byte _dimension;
         Player** board;
-        int _availableIndexesSize;
+        byte _availableIndexesSize;
         INDEX* _availableIndexes;
         bool _xTurn;
 
@@ -45,12 +45,12 @@ class TicTacToe
         void RemoveAvailableIndex(INDEX index);
         /// @brief Returns random number in a range of available indexes count
         /// @return 
-        int RandomNumber();
+        byte RandomNumber();
         
     public:
         INDEX botMove;
         INDEX humanMove;
-        TicTacToe(int dimension);
+        TicTacToe(byte dimension);
         /// @brief Makes the player move on the specified index
         /// @param index index on the board where the player wants to move
         /// @param type X, O. Is the player X or O
