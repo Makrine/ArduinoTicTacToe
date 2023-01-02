@@ -118,8 +118,16 @@ void Reseet()
   
 }
 
+bool humanStarts = true;
+
 void loop() {
 
+  GAME(humanStarts, Hard);
+
+}
+
+void GAME(bool &humanStarts, Mode mode)
+{
   while(ttt.gameOver) {ledController.CheckStatesMatrix(); delay(20);}
 
   uint8_t action;
@@ -130,34 +138,39 @@ void loop() {
   // TicTacToe agent
   while(!ttt.gameOver)
   {
-    action = getHumanInput();
 
-    ttt.humanTakeAction(action);
-    
-    INDEX_LED hLed = get2DIndex(action);
-    ledController.LedState(ledController.RED, hLed, 255);
-
-    int8_t win = ttt.winner();
-
-    if(win == HUMAN){
-      // wow
-      break;
-    }
-    else if(win == Draw)
+    if(humanStarts)
     {
-      break;
+      action = getHumanInput();
+
+      ttt.humanTakeAction(action);
+      
+      INDEX_LED hLed = get2DIndex(action);
+      ledController.LedState(ledController.RED, hLed, 255);
+
+      int8_t win = ttt.winner();
+
+      if(win == HUMAN){
+        // wow
+        break;
+      }
+      else if(win == Draw)
+      {
+        break;
+      }
     }
 
+    humanStarts = true;
     
     action = run_ai_agent(ttt.board);
   
     
-    action = ttt.botTakeAction(Medium, action);
+    action = ttt.botTakeAction(mode, action);
 
     INDEX_LED bLed = get2DIndex(action);
     ledController.LedState(ledController.BLUE, bLed, 255);
     
-    win = ttt.winner();
+    int8_t win = ttt.winner();
 
     if(win == BOT){
       // lost
@@ -168,5 +181,4 @@ void loop() {
       break;
     }
   }
-
 }
