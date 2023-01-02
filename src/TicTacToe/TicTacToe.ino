@@ -13,6 +13,9 @@
 #endif // __arm__
 
 
+
+
+
 const byte ROWS = 3; 
 const byte COLS = 3;
 char keys[ROWS][COLS] = {
@@ -121,13 +124,13 @@ void loop() {
   for(i = 0; i < 5; i++){
     action = getHumanInput();
 
-    ttt.board[action] = O;
+    ttt.humanTakeAction(action);
     
     INDEX_LED hLed = get2DIndex(action);
     ledController.LedState(ledController.RED, hLed, 255);
 
 
-    if(ttt.winner() == O){
+    if(ttt.winner() == HUMAN){
       // wow
       break;
     }
@@ -136,11 +139,12 @@ void loop() {
     action = run_ai_agent(ttt.board);
   
     
-    ttt.board[action] = X;
+    ttt.botTakeAction(action);
+
     INDEX_LED bLed = get2DIndex(action);
     ledController.LedState(ledController.BLUE, bLed, 255);
     
-    if(ttt.winner() == X){
+    if(ttt.winner() == BOT){
         // lost
       break;
     }
