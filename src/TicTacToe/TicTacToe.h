@@ -31,7 +31,7 @@ class TicTacToe
         void print_tictactoe_board();
 
     public:
-
+        bool gameOver;
         int8_t board[9];
 
         TicTacToe(bool debug);

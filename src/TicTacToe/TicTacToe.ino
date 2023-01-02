@@ -119,15 +119,17 @@ void Reseet()
 }
 
 void loop() {
+
+  while(ttt.gameOver) {ledController.CheckStatesMatrix(); delay(20);}
+
   uint8_t action;
-  uint8_t i;
 
-
-  Reseet();
-  ttt.resetBoard();
+  // Reseet();
+  // ttt.resetBoard();
 
   // TicTacToe agent
-  for(i = 0; i < 5; i++){
+  while(!ttt.gameOver)
+  {
     action = getHumanInput();
 
     ttt.humanTakeAction(action);
@@ -150,7 +152,7 @@ void loop() {
     action = run_ai_agent(ttt.board);
   
     
-    action = ttt.botTakeAction(Hard, action);
+    action = ttt.botTakeAction(Medium, action);
 
     INDEX_LED bLed = get2DIndex(action);
     ledController.LedState(ledController.BLUE, bLed, 255);

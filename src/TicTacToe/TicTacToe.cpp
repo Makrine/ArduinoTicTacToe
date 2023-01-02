@@ -30,7 +30,7 @@ int8_t TicTacToe::winner()
         }
     }
     
-    if(isDraw) return Draw;
+    if(isDraw) {gameOver = true; return Draw;}
 
 
   int x_count = 0;
@@ -45,8 +45,8 @@ int8_t TicTacToe::winner()
         o_count++;
       }
     }
-    if(x_count == 3) return BOT;
-    else if(o_count == 3) return HUMAN;
+    if(x_count == 3) {gameOver = true; return BOT;}
+    else if(o_count == 3) {gameOver = true; return HUMAN;}
     else x_count = o_count = 0;
   }
   
@@ -59,8 +59,8 @@ int8_t TicTacToe::winner()
         o_count++;
       }
     }
-    if(x_count == 3) return BOT;
-    else if(o_count == 3) return HUMAN;
+    if(x_count == 3) {gameOver = true; return BOT;}
+    else if(o_count == 3) {gameOver = true; return HUMAN;}
     else x_count = o_count = 0;
   }
 
@@ -72,8 +72,8 @@ int8_t TicTacToe::winner()
       o_count++;
     }
   }
-  if(x_count == 3) return BOT;
-  else if(o_count == 3) return HUMAN;
+  if(x_count == 3) {gameOver = true; return BOT;}
+  else if(o_count == 3) {gameOver = true; return HUMAN;}
   else x_count = o_count = 0;
   
   for(i = 0; i < 3; i++){
@@ -83,8 +83,8 @@ int8_t TicTacToe::winner()
       o_count++;
     }
   }
-  if(x_count == 3) return BOT;
-  else if(o_count == 3) return HUMAN;
+  if(x_count == 3) {gameOver = true; return BOT;}
+  else if(o_count == 3) {gameOver = true; return HUMAN;}
   else x_count = o_count = 0;
 
   return 0;
