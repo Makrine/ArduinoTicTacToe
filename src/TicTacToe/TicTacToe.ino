@@ -1,6 +1,21 @@
+
 #include "Keypad.h"
 #include "LedMatrixController.h"
-#include "TTT.h"
+#include <aifes.h>
+#if __AVR__
+#include <aifes_avr_pgm.h>
+#endif // __AVR__
+#if __arm__ && defined USE_CMSIS_ACCELERATION_ON_ARM
+#include <aifes_cmsis.h>
+#endif // __arm__
+
+#define  O   -64  // (value=-64; shift=6; zero_point=0) -> -1.0f
+#define  X    64  // (value=64; shift=6; zero_point=0)  ->  1.0f
+
+// The TicTacToe board. Can be X (AI), O (Player) or 0 (Free).
+int8_t board[9];
+
+
 
 const byte ROWS = 3; 
 const byte COLS = 3;
@@ -10,7 +25,7 @@ char keys[ROWS][COLS] = {
     {'7','8','9'}
 };
 
-byte rowPins[ROWS] = {2, 1, 0};
+byte rowPins[ROWS] = {A3, A4, A5};//{2, 1, 0}; //{A3, A4, A5};//
 byte colPins[COLS] = {5, 4, 3};
 
 byte refreshRate = 1;
@@ -20,107 +35,78 @@ byte colsR[3] = {11, 10, 9};
 byte colsB[3] = {6, A4, A3};
 byte colsG[3] = {A0, A1, A2};
 
-byte randomNumPin = A5;
-byte turnLed = 7;
-
 LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
-//byte dim = 3;
 
-TicTacToe ttt(3);
 
-enum MODE
+// Returns the winner of the TicTacToe board (X / O). If there is no winner, it returns 0.
+int8_t winner(int8_t *board)
 {
-  Easy, Medium, Hard, PvP
-};
-
-void setup()
-{
-  pinMode(randomNumPin, INPUT);
-  int randSeed= analogRead(randomNumPin);
-  randomSeed(randSeed);
-  pinMode(turnLed, OUTPUT);
-}
-bool humanStarts = true;
-
-void loop()
-{
-
-  setMode(Medium, humanStarts);
-
-  ledController.CheckStatesMatrix();
+  int i, j;
   
-}
-
-
-void setMode(MODE diff, bool &humanStarts)
-{
-
-  // if the game is over, flash leds and just don't continue
-  while(ttt.IsGameOverBool()) { ledController.CheckStatesMatrix(); delay(20);}
-
-  if(humanStarts)
-  {
-    getHumanInput(X);
+  int x_count = 0;
+  int o_count = 0;
   
-    // once the legit input is given, turn on the corresponding led
-    INDEX_LED humanLed(ttt.humanMove.row, ttt.humanMove.column);
-    ledController.LedState(ledController.BLUE, humanLed, 255);
-    
-    // check if the game is over
-    Player p = ttt.IsGameOver();    
+  // check rows
+  for(i = 0; i < 3; i++){
+    for(j = 0; j < 3; j++){
+      if(board[3*i+j] == X){
+        x_count++;
+      } else if(board[3*i+j] == O){
+        o_count++;
+      }
+    }
+    if(x_count == 3) return X;
+    else if(o_count == 3) return O;
+    else x_count = o_count = 0;
   }
- 
-  humanStarts = true;
   
-
-  // if the game is not over, make the second player move
-  if(!ttt.IsGameOverBool())
-  {
-    // if the second player is the bot, make the corresponding move 
-    // depending on the level
-    if(diff != PvP)
-    {
-      if(diff == Easy)
-      {
-        ttt.BotMoveEasy(O);
+  // check cols
+  for(i = 0; i < 3; i++){
+    for(j = 0; j < 3; j++){
+      if(board[3*j+i] == X){
+        x_count++;
+      } else if(board[3*j+i] == O){
+        o_count++;
       }
-      else if(diff == Medium)
-      {
-        ttt.BotMoveMedium(O);
-      }
-      else if(diff == Hard)
-      {
-        ttt.BotMoveHard(O);
-      }
-
-      // turn on the bot's led
-      INDEX_LED botLed(ttt.botMove.row, ttt.botMove.column);
-      ledController.LedState(ledController.RED, botLed, 255);
-
-      
     }
-    // if the second player is a humam
-    else
-    {
-        getHumanInput(O);
-  
-        // once the legit input is given, turn on the corresponding led
-        INDEX_LED humanLed(ttt.humanMove.row, ttt.humanMove.column);
-        ledController.LedState(ledController.RED, humanLed, 255);
-  
-    }
-    Player p = ttt.IsGameOver();
-  
+    if(x_count == 3) return X;
+    else if(o_count == 3) return O;
+    else x_count = o_count = 0;
   }
 
+  // check diagonals
+  for(i = 0; i < 3; i++){
+    if(board[3*i+i] == X){
+      x_count++;
+    } else if(board[3*i+i] == O){
+      o_count++;
+    }
+  }
+  if(x_count == 3) return X;
+  else if(o_count == 3) return O;
+  else x_count = o_count = 0;
+  
+  for(i = 0; i < 3; i++){
+    if(board[3*i+2-i] == X){
+      x_count++;
+    } else if(board[3*i+2-i] == O){
+      o_count++;
+    }
+  }
+  if(x_count == 3) return X;
+  else if(o_count == 3) return O;
+  else x_count = o_count = 0;
+
+  return 0;
 }
 
 
-void getHumanInput(Player p)
+uint8_t getHumanInput()
 {
+
   // get the player input
   char key = keypad.getKey();
 
@@ -132,69 +118,101 @@ void getHumanInput(Player p)
 
     key = keypad.getKey();
 
+    
+
     // if the human pressed the key, check if that spot is avaialble on the board
     if(key != NO_KEY)
     {
       // get board indexes from the key
-      translateHumanInput(key);
+      int action = key - '0' - 1;
 
-      // if the spot isn't available, assing NO_KEY so that it will wait for another input
-      if(!ttt.HumanMove(ttt.humanMove, p))
-        key = NO_KEY;
+      if(board[action] == 0) return action;
+      else key = NO_KEY;
+       
+    }
+  }
+      
+}
 
+INDEX_LED get2DIndex(int index)
+{
+  for(byte i = 0; i < 3; i++)
+  {
+    for(byte j =0; j < 3; j++)
+    {
+      if(index == i*3 + j)
+      {
+        INDEX_LED led(i, j);
+        return led;
+      }
     }
   }
 }
 
-void translateHumanInput(char key)
+void setup() {
+  // Init serial port for communication
+  Serial.begin(115200);
+  while (!Serial) {
+    ; // wait for serial port to connect.
+  }
+
+  // Init neural network
+  init_ai_agent();
+}
+
+
+void Reseet()
 {
-  if(key == '1')
+  for(byte i = 0; i < 3; i++)
   {
-    ttt.humanMove.row = 0;
-    ttt.humanMove.column = 0;
+    for(byte j =0; j < 3; j++)
+    {
+      INDEX_LED index(i, j);
+      ledController.LedState(ledController.RED, index, 0);
+      ledController.LedState(ledController.BLUE, index, 0);
+    }
   }
-  else if(key == '2')
-  {
-    ttt.humanMove.row = 0;
-    ttt.humanMove.column = 1;
+  
+}
+
+void loop() {
+  uint8_t action;
+  uint8_t i, j;
+
+
+  Reseet();
+  // Reset the board
+  for(i = 0; i < 9; i++){
+    board[i] = 0.0f;
   }
 
-  else if(key == '3')
-  {
-    ttt.humanMove.row = 0;
-    ttt.humanMove.column = 2;
+  // TicTacToe agent
+  for(i = 0; i < 5; i++){
+    action = getHumanInput();
+
+    board[action] = O;
+    
+    INDEX_LED hLed = get2DIndex(action);
+    ledController.LedState(ledController.RED, hLed, 255);
+
+
+    if(winner(board) == O){
+      // wow
+      break;
+    }
+
+    
+    action = run_ai_agent(board);
+  
+    
+    board[action] = X;
+    INDEX_LED bLed = get2DIndex(action);
+    ledController.LedState(ledController.BLUE, bLed, 255);
+    
+    if(winner(board) == X){
+        // lost
+      break;
+    }
   }
 
-  else if(key == '4')
-  {
-    ttt.humanMove.row = 1;
-    ttt.humanMove.column = 0;
-  }
-  else if(key == '5')
-  {
-    ttt.humanMove.row = 1;
-    ttt.humanMove.column = 1;
-  }
-
-  else if(key == '6')
-  {
-    ttt.humanMove.row = 1;
-    ttt.humanMove.column = 2;
-  }
-  else if(key == '7')
-  {
-    ttt.humanMove.row = 2;
-    ttt.humanMove.column = 0;
-  }
-  else if(key == '8')
-  {
-    ttt.humanMove.row = 2;
-    ttt.humanMove.column = 1;
-  }
-
-  else if(key == '9')
-  {
-    ttt.humanMove.row = 2;
-    ttt.humanMove.column = 2;
-  }
 }
