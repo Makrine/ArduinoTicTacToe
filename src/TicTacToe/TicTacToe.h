@@ -7,6 +7,13 @@
 #define  BOT      64  // (value=64; shift=6; zero_point=0)  ->  1.0f
 
 
+enum Mode
+{
+    Easy,
+    Medium,
+    Hard
+};
+
 class TicTacToe
 {
     public:
@@ -18,7 +25,7 @@ class TicTacToe
         void resetBoard();
 
         void humanTakeAction(uint8_t action);
-        void botTakeAction(uint8_t action);
+        void botTakeAction(Mode mode, uint8_t action);
 };
 
 

@@ -139,7 +139,7 @@ void loop() {
     action = run_ai_agent(ttt.board);
   
     
-    ttt.botTakeAction(action);
+    ttt.botTakeAction(Hard, action);
 
     INDEX_LED bLed = get2DIndex(action);
     ledController.LedState(ledController.BLUE, bLed, 255);

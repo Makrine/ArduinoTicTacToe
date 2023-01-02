@@ -71,9 +71,21 @@ int8_t TicTacToe::winner()
   return 0;
 }
 
-void TicTacToe::botTakeAction(uint8_t action)
+void TicTacToe::botTakeAction(Mode mode, uint8_t action = -1)
 {
-    board[action] = BOT;
+    if(mode == Easy)
+    {
+
+    }
+    else if(mode == Medium)
+    {
+
+    }
+    else 
+    {
+        board[action] = BOT;
+    }
+    
 }
 
 void TicTacToe::humanTakeAction(uint8_t action)
