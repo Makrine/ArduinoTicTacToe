@@ -38,8 +38,9 @@ LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
-TicTacToe ttt = TicTacToe();
+TicTacToe ttt = TicTacToe(true);
 
+byte randomNumPin = A5;
 
 uint8_t getHumanInput()
 {
@@ -61,7 +62,7 @@ uint8_t getHumanInput()
     if(key != NO_KEY)
     {
       // get board indexes from the key
-      int action = key - '0' - 1;
+      uint8_t action = key - '0' - 1;
 
       if(ttt.board[action] == 0) return action;
       else key = NO_KEY;
@@ -70,6 +71,7 @@ uint8_t getHumanInput()
   }
       
 }
+
 
 INDEX_LED get2DIndex(int index)
 {
@@ -95,6 +97,10 @@ void setup() {
 
   // Init neural network
   init_ai_agent();
+  int randSeed= analogRead(randomNumPin);
+  randomSeed(randSeed);
+  pinMode(randomNumPin, INPUT);
+
 }
 
 
@@ -114,7 +120,7 @@ void Reseet()
 
 void loop() {
   uint8_t action;
-  uint8_t i, j;
+  uint8_t i;
 
 
   Reseet();
@@ -129,9 +135,14 @@ void loop() {
     INDEX_LED hLed = get2DIndex(action);
     ledController.LedState(ledController.RED, hLed, 255);
 
+    int8_t win = ttt.winner();
 
-    if(ttt.winner() == HUMAN){
+    if(win == HUMAN){
       // wow
+      break;
+    }
+    else if(win == Draw)
+    {
       break;
     }
 
@@ -139,13 +150,19 @@ void loop() {
     action = run_ai_agent(ttt.board);
   
     
-    ttt.botTakeAction(Hard, action);
+    action = ttt.botTakeAction(Hard, action);
 
     INDEX_LED bLed = get2DIndex(action);
     ledController.LedState(ledController.BLUE, bLed, 255);
     
-    if(ttt.winner() == BOT){
-        // lost
+    win = ttt.winner();
+
+    if(win == BOT){
+      // lost
+      break;
+    }
+    else if(win == Draw)
+    {
       break;
     }
   }
