@@ -10,9 +10,10 @@
 
 enum Mode
 {
-    Easy,
-    Medium,
-    Hard
+  PvP,
+  Easy,
+  Medium,
+  Hard
 };
 
 class TicTacToe

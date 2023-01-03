@@ -162,7 +162,15 @@ void GAME(bool &humanStarts, Mode mode)
 
     humanStarts = true;
     
-    action = run_ai_agent(ttt.board);
+    if(mode == PvP)
+    {
+      action = getHumanInput();
+    }
+    else if(mode == Hard)
+    {
+      action = run_ai_agent(ttt.board);
+    }
+    
   
     
     action = ttt.botTakeAction(mode, action);

@@ -117,11 +117,15 @@ uint8_t TicTacToe::botTakeAction(Mode mode, uint8_t action = -1)
         // if not winning, place randomly
         if(action == 13) action = availableCells[randomCell()];
     }
-    else 
+    else if(mode == Hard)
     {
         // not really anything
     }
-    
+    // PvP
+    else
+    {
+
+    }
     board[action] = BOT;
 
     
