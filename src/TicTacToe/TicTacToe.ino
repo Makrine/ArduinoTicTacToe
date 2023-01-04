@@ -24,23 +24,93 @@ char keys[ROWS][COLS] = {
     {'7','8','9'}
 };
 
-byte rowPins[ROWS] = {A3, A4, A5};//{2, 1, 0}; //{A3, A4, A5};//
-byte colPins[COLS] = {5, 4, 3};
+byte rowPins[ROWS] = {7, 6, 5}; 
+byte colPins[COLS] = {4, 3, 2}; 
 
 byte refreshRate = 1;
 
 byte myRows[3] = {13, 12, 8};
-byte colsR[3] = {11, 10, 9};
-byte colsB[3] = {6, A4, A3};
-byte colsG[3] = {A0, A1, A2};
+byte colsR[3] = {A2, A1, A0};
+byte colsB[3] = {9, 11, 10};
+byte colsG[3] = {A3, A4, A5};
 
-LedController ledController(myRows, colsR, colsB, colsG, 3, 3, refreshRate);
+LedController ledController(myRows, colsR, colsG, colsB, 3, 3, refreshRate);
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 TicTacToe ttt = TicTacToe(true);
 
-byte randomNumPin = A5;
+byte randomNumPin = A7;
+byte potPin = A6;
+byte startPin = 0;
+byte togglePin = 1;
+
+bool started = false;
+bool xStarts = true;
+Mode mode = Easy;
+
+void setup() {
+  // Init neural network
+  init_ai_agent();
+
+  // Init rand seed from unconnected analog pin
+  int randSeed= analogRead(randomNumPin);
+  randomSeed(randSeed);
+
+  pinMode(randomNumPin, INPUT);
+  pinMode(potPin, INPUT);
+  pinMode(startPin, INPUT_PULLUP);
+  pinMode(togglePin, INPUT_PULLUP);
+
+}
+void loop() {
+
+  if(started)
+    GAME(xStarts, mode);
+  
+  else
+    selectMode();
+
+}
+
+void selectMode()
+{
+  int startNotPressed = digitalRead(startPin);
+  int toggleVal       = digitalRead(togglePin);
+  int level           = analogRead(potPin);
+
+  level = map(level, 0, 1023, 0, 255);
+
+  if(level < 64) mode = PvP;
+  else if(level < 128) mode = Easy;
+  else if(level < 192) mode = Medium;
+  else mode = Hard;
+
+  if(toggleVal) xStarts = true;
+  else xStarts = false;
+  if(!startNotPressed)
+  {
+    started = true;
+  }
+}
+
+
+
+
+void Reseet()
+{
+  for(byte i = 0; i < 3; i++)
+  {
+    for(byte j =0; j < 3; j++)
+    {
+      INDEX_LED index(i, j);
+      ledController.LedState(ledController.RED, index, 0);
+      ledController.LedState(ledController.BLUE, index, 0);
+    }
+  }
+  
+}
+
 
 uint8_t getHumanInput()
 {
@@ -87,45 +157,6 @@ INDEX_LED get2DIndex(int index)
     }
   }
 }
-
-void setup() {
-  // Init serial port for communication
-  Serial.begin(115200);
-  while (!Serial) {
-    ; // wait for serial port to connect.
-  }
-
-  // Init neural network
-  init_ai_agent();
-  int randSeed= analogRead(randomNumPin);
-  randomSeed(randSeed);
-  pinMode(randomNumPin, INPUT);
-
-}
-
-
-void Reseet()
-{
-  for(byte i = 0; i < 3; i++)
-  {
-    for(byte j =0; j < 3; j++)
-    {
-      INDEX_LED index(i, j);
-      ledController.LedState(ledController.RED, index, 0);
-      ledController.LedState(ledController.BLUE, index, 0);
-    }
-  }
-  
-}
-
-bool humanStarts = true;
-
-void loop() {
-
-  GAME(humanStarts, Hard);
-
-}
-
 void GAME(bool &humanStarts, Mode mode)
 {
   while(ttt.gameOver) {ledController.CheckStatesMatrix(); delay(20);}
