@@ -61,6 +61,7 @@ void setup() {
   pinMode(potPin, INPUT);
   pinMode(startPin, INPUT_PULLUP);
   pinMode(togglePin, INPUT_PULLUP);
+  startUpLed();
 
 }
 void loop() {
@@ -73,6 +74,29 @@ void loop() {
 
 }
 
+void startUpLed()
+{
+  for(byte i = 0; i < 3; i++)
+  {
+    for(byte j = 0; j < 3; j++)
+    {
+      INDEX_LED k(i, j);
+      ledController.LedState(ledController.GREEN, k, 255);
+      delay(100);
+    }
+  }
+
+  for(byte i = 0; i < 3; i++)
+  {
+    for(byte j = 0; j < 3; j++)
+    {
+      INDEX_LED k(i, j);
+      ledController.LedState(ledController.GREEN, k, 0);
+      delay(100);
+    }
+  }
+}
+
 void selectMode()
 {
   int startNotPressed = digitalRead(startPin);
@@ -81,10 +105,30 @@ void selectMode()
 
   level = map(level, 0, 1023, 0, 255);
 
-  if(level < 64) mode = PvP;
-  else if(level < 128) mode = Easy;
-  else if(level < 192) mode = Medium;
-  else mode = Hard;
+  if(level < 64)
+  {
+    INDEX_LED k(0, 0);
+    ledController.LedState(ledController.GREEN, k, 255);
+    mode = PvP;
+  }
+  else if(level < 128) 
+  {
+    INDEX_LED k(0, 2);
+    ledController.LedState(ledController.GREEN, k, 255);
+    mode = Easy;
+  }
+  else if(level < 192) 
+  {
+    INDEX_LED k(2, 2);
+    ledController.LedState(ledController.GREEN, k, 255);
+    mode = Medium;
+  }
+  else 
+  {
+    INDEX_LED k(2, 0);
+    ledController.LedState(ledController.GREEN, k, 255);
+    mode = Hard;
+  }
 
   if(toggleVal) xStarts = true;
   else xStarts = false;
@@ -163,7 +207,7 @@ void GAME(bool &humanStarts, Mode mode)
 
   uint8_t action;
 
-  // Reseet();
+  Reseet();
   // ttt.resetBoard();
 
   // TicTacToe agent
