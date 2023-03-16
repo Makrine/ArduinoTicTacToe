@@ -1,4 +1,4 @@
-# ArduinoTicTacToe
+# Arduino TicTacToe
 TicTacToe made on Arduino.
 
 Modes:
